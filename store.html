@@ -1,174 +1,131 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>XPOS 系統</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>寄杯小工具</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f5f5f5;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      background-color: #007bff;
-      color: white;
-      padding: 1rem;
-    }
-
-    .menu-toggle {
-      font-size: 1.5rem;
-      cursor: pointer;
-      margin-right: 1rem;
-    }
-
-    nav {
-      position: fixed;
-      left: -250px;
-      top: 0;
-      width: 250px;
-      height: 100%;
-      background-color: #343a40;
-      color: white;
-      padding-top: 2rem;
-      transition: left 0.3s;
-      z-index: 1000;
-    }
-
-    nav.open {
-      left: 0;
-    }
-
-    nav a {
-      display: block;
-      color: white;
-      padding: 1rem;
-      text-decoration: none;
-    }
-
-    nav a:hover {
-      background-color: #495057;
-    }
-
-    .content {
-      padding: 1rem;
-      margin-top: 1rem;
-    }
-
-    .form-section {
-      display: none;
-    }
-
-    .form-section.active {
-      display: block;
-    }
-
-    label {
-      display: block;
-      margin-top: 1rem;
-    }
-
-    input, select, button {
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      margin-top: 1rem;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    @media(min-width: 768px) {
-      nav {
-        left: 0;
-      }
-      .menu-toggle {
-        display: none;
-      }
-    }
+    body { background-color: #fffbe7; padding: 2rem; font-family: 'Helvetica Neue', sans-serif; }
+    h1 { color: #6b4c3b; }
+    .card { margin-bottom: 1rem; }
+    .btn { margin-right: 0.5rem; }
   </style>
 </head>
 <body>
+  <h1>🥤 寄杯小工具</h1>
+  <div class="mb-3">
+    <input id="nameInput" class="form-control" placeholder="輸入顧客名稱" />
+  </div>
+  <div class="mb-3">
+    <input id="countInput" type="number" class="form-control" placeholder="杯數" />
+  </div>
+  <div class="mb-3">
+    <button class="btn btn-primary" onclick="addCustomer()">➕ 新增寄杯</button>
+    <button class="btn btn-danger" onclick="subtractCup()">➖ 扣杯</button>
+    <button class="btn btn-secondary" onclick="backupNow()">📥 手動備份</button>
+    <button class="btn btn-success" onclick="exportExcel()">📊 匯出 Excel</button>
+  </div>
+  <div id="customerList"></div>
 
-<header>
-  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-  <h1>XPOS 系統</h1>
-</header>
+  <!-- SheetJS -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const today = new Date().toISOString().split('T')[0];
 
-<nav id="sidebar">
-  <a href="#" onclick="showSection('sales')">📊 銷售總覽</a>
-  <a href="#" onclick="showSection('addCategory')">📁 新增中分類</a>
-  <a href="#" onclick="showSection('addStore')">🏪 新增門市</a>
-  <a href="#" onclick="showSection('addProduct')">📦 新增商品</a>
-</nav>
+    function getData() {
+      return JSON.parse(localStorage.getItem('cupData') || '{}');
+    }
 
-<main class="content">
-  <section id="sales" class="form-section active">
-    <h2>銷售數據總覽</h2>
-    <p>這裡將來會顯示銷售資料</p>
-  </section>
+    function saveData(data) {
+      localStorage.setItem('cupData', JSON.stringify(data));
+    }
 
-  <section id="addCategory" class="form-section">
-    <h2>新增中分類</h2>
-    <label>中分類名稱：
-      <input type="text" placeholder="例如：飲料、零食" />
-    </label>
-    <button onclick="alert('✅ 中分類已送出')">送出</button>
-  </section>
+    function render() {
+      const data = getData();
+      const list = document.getElementById('customerList');
+      list.innerHTML = '';
+      for (const name in data) {
+        const customer = data[name];
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-body">
+            <h5 class="card-title">${name}：${customer.count} 杯</h5>
+            <button class="btn btn-outline-info btn-sm" onclick="viewHistory('${name}')">📜 查看歷史</button>
+          </div>
+        `;
+        list.appendChild(card);
+      }
+    }
 
-  <section id="addStore" class="form-section">
-    <h2>新增門市</h2>
-    <label>門市名稱：
-      <input type="text" placeholder="例如：台北站前店" />
-    </label>
-    <label>地址：
-      <input type="text" placeholder="門市地址" />
-    </label>
-    <button onclick="alert('✅ 門市已送出')">送出</button>
-  </section>
+    function addCustomer() {
+      const name = document.getElementById('nameInput').value.trim();
+      const count = parseInt(document.getElementById('countInput').value);
+      if (!name || isNaN(count)) return alert('請填寫姓名與杯數');
+      const data = getData();
+      if (!data[name]) data[name] = { count: 0, history: [] };
+      data[name].count += count;
+      data[name].history.push({ type: 'add', count, time: new Date().toISOString() });
+      saveData(data);
+      render();
+    }
 
-  <section id="addProduct" class="form-section">
-    <h2>新增商品</h2>
-    <label>商品名稱：
-      <input type="text" placeholder="例如：綠茶" />
-    </label>
-    <label>品號：
-      <input type="text" placeholder="輸入商品品號" />
-    </label>
-    <label>中分類：
-      <select><option>請選擇</option></select>
-    </label>
-    <label>建議陳列數：
-      <input type="number" placeholder="例如：5" />
-    </label>
-    <button onclick="alert('✅ 商品已送出')">送出</button>
-  </section>
-</main>
+    function subtractCup() {
+      const name = document.getElementById('nameInput').value.trim();
+      const count = parseInt(document.getElementById('countInput').value);
+      if (!name || isNaN(count)) return alert('請填寫姓名與杯數');
+      const data = getData();
+      if (!data[name]) return alert('查無此顧客');
+      if (data[name].count < count) return alert('杯數不足');
+      data[name].count -= count;
+      data[name].history.push({ type: 'subtract', count, time: new Date().toISOString() });
+      saveData(data);
+      render();
+    }
 
-<script>
-  function toggleMenu() {
-    document.getElementById('sidebar').classList.toggle('open');
-  }
+    function viewHistory(name) {
+      const data = getData();
+      const history = data[name].history.map(h => {
+        const action = h.type === 'add' ? '新增' : '扣除';
+        return `${h.time} - ${action} ${h.count} 杯`;
+      }).join('\n');
+      alert(`📜 ${name} 的歷史紀錄：\n\n${history}`);
+    }
 
-  function showSection(sectionId) {
-    document.querySelectorAll('.form-section').forEach(el => {
-      el.classList.remove('active');
-    });
-    document.getElementById(sectionId).classList.add('active');
-    if (window.innerWidth < 768) toggleMenu();
-  }
-</script>
+    function backupNow() {
+      const data = getData();
+      const blob = new Blob([JSON.stringify({ date: today, data }, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `backup_${today}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
 
+    function autoBackupOncePerDay() {
+      const last = localStorage.getItem('lastBackupDate');
+      if (last !== today) {
+        backupNow();
+        localStorage.setItem('lastBackupDate', today);
+      }
+    }
+
+    function exportExcel() {
+      const data = getData();
+      const rows = [];
+      for (const name in data) {
+        rows.push({ 顧客: name, 杯數: data[name].count });
+      }
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "寄杯紀錄");
+      XLSX.writeFile(workbook, `寄杯紀錄_${today}.xlsx`);
+    }
+
+    render();
+    autoBackupOncePerDay();
+  </script>
 </body>
 </html>
