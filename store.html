@@ -1,108 +1,174 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>XPOS 銷售輸入系統</title>
-  <script type="module">
-    // Firebase 套件載入
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBech4CYnhsbPwg_EFTR3xD8lf29kmf0Bg",
-      authDomain: "xposc-b9c0c.firebaseapp.com",
-      projectId: "xposc-b9c0c",
-      storageBucket: "xposc-b9c0c.appspot.com",
-      messagingSenderId: "897665498645",
-      appId: "1:897665498645:web:017b0aa537cb7f3c54581c",
-      measurementId: "G-54VWVC9B4D"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    async function submitSale() {
-      const store = document.getElementById("store").value;
-      const product = document.getElementById("product").value;
-      const quantity = document.getElementById("quantity").value;
-      const date = document.getElementById("date").value;
-
-      if (!store || !product || !quantity || !date) {
-        alert("請填寫所有欄位");
-        return;
-      }
-
-      try {
-        await addDoc(collection(db, "stores", store, "sales"), {
-          productId: product,
-          quantitySold: parseInt(quantity),
-          date: date
-        });
-        alert("✅ 資料已送出！");
-      } catch (e) {
-        console.error("❌ 錯誤：", e);
-        alert("送出失敗，請稍後再試");
-      }
-    }
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>XPOS 系統</title>
   <style>
     body {
-      font-family: "Helvetica Neue", sans-serif;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      background-color: #007bff;
+      color: white;
       padding: 1rem;
-      background-color: #f4f4f4;
     }
-    h1 {
-      text-align: center;
-      color: #333;
+
+    .menu-toggle {
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-right: 1rem;
     }
-    form {
-      max-width: 400px;
-      margin: auto;
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+    nav {
+      position: fixed;
+      left: -250px;
+      top: 0;
+      width: 250px;
+      height: 100%;
+      background-color: #343a40;
+      color: white;
+      padding-top: 2rem;
+      transition: left 0.3s;
+      z-index: 1000;
     }
-    label, input {
+
+    nav.open {
+      left: 0;
+    }
+
+    nav a {
       display: block;
-      width: 100%;
-      margin-bottom: 1rem;
+      color: white;
+      padding: 1rem;
+      text-decoration: none;
     }
-    input {
+
+    nav a:hover {
+      background-color: #495057;
+    }
+
+    .content {
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+
+    input, select, button {
       padding: 0.5rem;
-      font-size: 1rem;
-    }
-    button {
+      margin-top: 0.5rem;
       width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
+      max-width: 400px;
+    }
+
+    button {
       background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 5px;
+      margin-top: 1rem;
     }
+
     button:hover {
       background-color: #0056b3;
+    }
+
+    @media(min-width: 768px) {
+      nav {
+        left: 0;
+      }
+      .menu-toggle {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>XPOS 銷售輸入</h1>
-  <form onsubmit="submitSale(); return false;">
-    <label for="store">🏪 門市代碼</label>
-    <input id="store" type="text" placeholder="例如：store001" required />
 
-    <label for="product">📦 商品代碼</label>
-    <input id="product" type="text" placeholder="例如：P123456789" required />
+<header>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+  <h1>XPOS 系統</h1>
+</header>
 
-    <label for="quantity">🔢 銷售數量</label>
-    <input id="quantity" type="number" min="0" required />
+<nav id="sidebar">
+  <a href="#" onclick="showSection('sales')">📊 銷售總覽</a>
+  <a href="#" onclick="showSection('addCategory')">📁 新增中分類</a>
+  <a href="#" onclick="showSection('addStore')">🏪 新增門市</a>
+  <a href="#" onclick="showSection('addProduct')">📦 新增商品</a>
+</nav>
 
-    <label for="date">🗓️ 日期</label>
-    <input id="date" type="date" required />
+<main class="content">
+  <section id="sales" class="form-section active">
+    <h2>銷售數據總覽</h2>
+    <p>這裡將來會顯示銷售資料</p>
+  </section>
 
-    <button type="submit">✅ 送出資料</button>
-  </form>
+  <section id="addCategory" class="form-section">
+    <h2>新增中分類</h2>
+    <label>中分類名稱：
+      <input type="text" placeholder="例如：飲料、零食" />
+    </label>
+    <button onclick="alert('✅ 中分類已送出')">送出</button>
+  </section>
+
+  <section id="addStore" class="form-section">
+    <h2>新增門市</h2>
+    <label>門市名稱：
+      <input type="text" placeholder="例如：台北站前店" />
+    </label>
+    <label>地址：
+      <input type="text" placeholder="門市地址" />
+    </label>
+    <button onclick="alert('✅ 門市已送出')">送出</button>
+  </section>
+
+  <section id="addProduct" class="form-section">
+    <h2>新增商品</h2>
+    <label>商品名稱：
+      <input type="text" placeholder="例如：綠茶" />
+    </label>
+    <label>品號：
+      <input type="text" placeholder="輸入商品品號" />
+    </label>
+    <label>中分類：
+      <select><option>請選擇</option></select>
+    </label>
+    <label>建議陳列數：
+      <input type="number" placeholder="例如：5" />
+    </label>
+    <button onclick="alert('✅ 商品已送出')">送出</button>
+  </section>
+</main>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  function showSection(sectionId) {
+    document.querySelectorAll('.form-section').forEach(el => {
+      el.classList.remove('active');
+    });
+    document.getElementById(sectionId).classList.add('active');
+    if (window.innerWidth < 768) toggleMenu();
+  }
+</script>
+
 </body>
 </html>
