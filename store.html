@@ -24,6 +24,187 @@
       flex-direction: column;
   }
 
+  /* 更新加載動畫 */
+  .update-loading {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .update-loading.show {
+    display: flex;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .update-loading-spinner {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .update-loading-spinner::before,
+  .update-loading-spinner::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    animation: updateSpinner 1.5s linear infinite;
+  }
+
+  .update-loading-spinner::before {
+    width: 100%;
+    height: 100%;
+    border: 4px solid transparent;
+    border-top-color: #0078d4;
+    border-right-color: #0078d4;
+    animation-delay: -0.5s;
+  }
+
+  .update-loading-spinner::after {
+    width: 70%;
+    height: 70%;
+    top: 15%;
+    left: 15%;
+    border: 4px solid transparent;
+    border-top-color: #fad0c4;
+    border-right-color: #fad0c4;
+  }
+
+  .update-loading-text {
+    color: white;
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: 20px;
+    animation: updateTextPulse 1.5s ease-in-out infinite;
+  }
+
+  .update-loading-progress {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-top: 15px;
+    overflow: hidden;
+  }
+
+  .update-loading-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: #0078d4;
+    animation: updateProgress 2s ease-in-out infinite;
+  }
+
+  @keyframes updateSpinner {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes updateTextPulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes updateProgress {
+    0% {
+      width: 0%;
+    }
+    50% {
+      width: 100%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* 更新 Modal 動畫效果 */
+  #updateModal .modal-dialog {
+    transform: scale(0.7);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+  }
+
+  #updateModal.show .modal-dialog {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  /* 更新按鈕動畫 */
+  #updateModal .btn-primary {
+    position: relative;
+    overflow: hidden;
+  }
+
+  #updateModal .btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+  }
+
+  #updateModal .btn-primary:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(0, 0);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(20, 20);
+      opacity: 0;
+    }
+  }
+
+  /* 版本號更新動畫 */
+  #updateModal .version-update {
+    animation: versionPulse 2s infinite;
+  }
+
+  @keyframes versionPulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
   /* 確保更新 Modal 顯示在最上層 */
   #updateModal {
     z-index: 1060 !important;
@@ -396,6 +577,14 @@
   </style>
 </head>
 <body class="container py-4">
+  <!-- 更新加載動畫 -->
+  <div class="update-loading" id="updateLoading">
+    <div class="update-loading-spinner"></div>
+    <div class="update-loading-text">正在更新應用程式...</div>
+    <div class="update-loading-progress">
+      <div class="update-loading-progress-bar"></div>
+    </div>
+  </div>
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">☕ 寄杯管理小工具</h1>
@@ -444,18 +633,25 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-4 shadow-sm">
         <div class="modal-header">
-          <h5 class="modal-title" id="updateModalLabel">✨ 新版本可用！</h5>
+          <h5 class="modal-title" id="updateModalLabel">
+            <span class="version-update">✨</span> 新版本可用！
+          </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>發現新的應用程式版本，建議立即更新以取得最新功能及修正。</p>
-          <p>目前版本：<span id="currentVersionModal">1.0.0</span></p>
-          <p>新版本：<span id="newVersionModal">-</span></p>
-           <small class="text-muted">（更新需要重新載入頁面）</small>
+          <p class="version-update">發現新的應用程式版本，建議立即更新以取得最新功能及修正。</p>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <p class="mb-0">目前版本：<span id="currentVersionModal" class="badge bg-secondary">1.0.0</span></p>
+            <span class="version-update">→</span>
+            <p class="mb-0">新版本：<span id="newVersionModal" class="badge bg-primary">-</span></p>
+          </div>
+          <small class="text-muted d-block">（更新需要重新載入頁面）</small>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">稍後再說</button>
-          <button type="button" class="btn btn-primary" onclick="applyUpdate()">立即更新</button>
+          <button type="button" class="btn btn-primary version-update" onclick="applyUpdate()">
+            <span class="me-1">🔄</span>立即更新
+          </button>
         </div>
       </div>
     </div>
@@ -1561,7 +1757,9 @@
       document.getElementById('autoBackupIntervalInput').value = localStorage.getItem('autoBackupInterval') || '1';
       document.getElementById('enablePredictiveSorting').checked = localStorage.getItem('predictiveSortingEnabled') === 'true';
       document.getElementById('enableDarkMode').checked = localStorage.getItem('darkModeEnabled') === 'true';
-      
+      document.getElementById('enableDailyReport').checked = localStorage.getItem('enableDailyReport') === 'true';
+      document.getElementById('enableMonthlyReport').checked = localStorage.getItem('enableMonthlyReport') === 'true';
+
       // 渲染商品類型列表
       renderProductTypeList();
 
@@ -2515,6 +2713,10 @@
     function applyUpdate() {
         console.log('applyUpdate called.');
         
+        // 顯示加載動畫
+        const updateLoading = document.getElementById('updateLoading');
+        updateLoading.classList.add('show');
+        
         // 隱藏 Modal
         const updateModalElement = document.getElementById('updateModal');
         const updateModal = bootstrap.Modal.getInstance(updateModalElement);
@@ -2525,23 +2727,42 @@
             console.log('Update modal instance not found.');
         }
 
-        // 強制清除快取並重新載入
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                for (let name of names) {
-                    caches.delete(name);
-                }
-            });
-        }
+        // 延遲執行更新操作，讓用戶看到加載動畫
+        setTimeout(() => {
+            // 強制清除快取並重新載入
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) {
+                        caches.delete(name);
+                    }
+                });
+            }
 
-        if (newServiceWorker) {
-            console.log('Sending SKIP_WAITING message to newServiceWorker:', newServiceWorker);
-            // 通知 Service Worker 跳過等待
-            newServiceWorker.postMessage({ type: 'SKIP_WAITING' });
-        }
-
-        // 強制重新載入頁面
-        window.location.reload(true);
+            if (newServiceWorker) {
+                console.log('Sending SKIP_WAITING message to newServiceWorker:', newServiceWorker);
+                // 通知 Service Worker 跳過等待
+                newServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+                
+                // 監聽 Service Worker 的狀態變化
+                newServiceWorker.addEventListener('statechange', () => {
+                    if (newServiceWorker.state === 'activated') {
+                        console.log('Service Worker activated, updating version number...');
+                        // 只有在 Service Worker 完全啟動後才更新版本號
+                        const newVersion = document.getElementById('newVersionModal').textContent;
+                        localStorage.setItem('appVersion', newVersion);
+                        const currentVersionElement = document.getElementById('currentVersion');
+                        if (currentVersionElement) {
+                            currentVersionElement.textContent = newVersion;
+                        }
+                        // 強制重新載入頁面
+                        window.location.reload(true);
+                    }
+                });
+            } else {
+                // 如果沒有新的 Service Worker，直接重新載入
+                window.location.reload(true);
+            }
+        }, 1500); // 延遲 1.5 秒，讓用戶能看到加載動畫
     }
 
     // 在頁面載入時檢查版本號
