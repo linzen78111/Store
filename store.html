@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>寄杯管理小工具 - OPENPOINT風格</title>
+  <title>寄杯管理</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     /* 字體與背景 */
@@ -190,7 +190,7 @@
 </head>
 <body class="container py-4">
 
-  <h1 class="mb-4 text-center">☕ 寄杯管理小工具</h1>
+  <h1 class="mb-4 text-center">☕ 寄杯管理</h1>
 
   <!-- 統計資訊 -->
   <div class="alert alert-info mb-3" role="alert">
@@ -221,15 +221,45 @@
   <!-- 顧客列表 -->
   <div id="customerList" class="vstack gap-3"></div>
 
-  <!-- 備份提示 -->
-  <div id="backupNotice" class="alert alert-info d-none" role="alert"></div>
-
   <!-- Toast 提示容器 -->
   <div class="toast-container"></div>
 
+  <!-- 備份提示 Modal -->
+  <div id="backupNoticeModal" class="modal fade" tabindex="-1" aria-labelledby="backupNoticeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="backupNoticeModalLabel">備份提示</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="backupNoticeContent"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">好的</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 確認提示 Modal -->
+  <div id="confirmModal" class="modal fade" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmModalLabel">請確認</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="confirmMessage"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-danger" id="confirmActionBtn">確定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 查看歷史 Modal -->
   <div id="historyModal" class="modal fade" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
       <div class="modal-content rounded-4 shadow-sm">
         <div class="modal-header">
           <h5 class="modal-title" id="historyModalLabel">📜 顧客歷史紀錄</h5>
@@ -242,7 +272,7 @@
 
   <!-- 新增顧客 Modal -->
   <div id="addCustomerModal" class="modal fade" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-4 shadow-sm">
         <div class="modal-header">
           <h5 class="modal-title" id="addCustomerModalLabel">➕ 新增顧客</h5>
@@ -268,7 +298,7 @@
 
   <!-- 編輯備註 Modal -->
   <div id="editNoteModal" class="modal fade" tabindex="-1" aria-labelledby="editNoteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-4 shadow-sm">
         <div class="modal-header">
           <h5 class="modal-title" id="editNoteModalLabel">📝 編輯備註</h5>
@@ -290,7 +320,7 @@
 
   <!-- 快速搜尋 Modal -->
   <div id="quickSearchModal" class="modal fade" tabindex="-1" aria-labelledby="quickSearchModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-4 shadow-sm">
         <div class="modal-header">
           <h5 class="modal-title" id="quickSearchModalLabel">🔍 快速搜尋</h5>
@@ -303,11 +333,34 @@
     </div>
   </div>
 
+  <!-- 加多杯 Modal -->
+  <div id="addMultipleCupsModal" class="modal fade" tabindex="-1" aria-labelledby="addMultipleCupsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addMultipleCupsModalLabel">➕ 加多杯</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="cupsToAddInput" class="form-label">要增加的杯數</label>
+            <input type="number" id="cupsToAddInput" class="form-control" value="1" min="1" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" onclick="confirmAddMultipleCups()">確定增加</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- JS 區塊 -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // 全域變數
     let currentEditingCustomer = null;
+    let currentCustomerToAddCups = null; // 新增變數來記錄要加杯的顧客
 
     // 基礎資料操作函數
     function getData() {
@@ -436,13 +489,13 @@
       render();
     }
 
-    function addCup(name) {
+    function addCup(name, quantity = 1) {
       const data = getData();
       if (!data[name]) data[name] = { count: 0, log: [], createdAt: new Date().toISOString() };
-      data[name].count++;
-      data[name].log.push(`+1 杯（${new Date().toLocaleString()}）`);
+      data[name].count += quantity;
+      data[name].log.push(`+${quantity} 杯（${new Date().toLocaleString()}）`);
       saveData(data);
-      showToast(`已為 ${name} 加一杯`);
+      showToast(`已為 ${name} 增加 ${quantity} 杯`);
       render();
     }
 
@@ -460,13 +513,29 @@
     }
 
     function removeCustomer(name) {
-      if (!confirm(`確定要移除 ${name} 嗎？此操作無法復原！`)) return;
+      const confirmModalElement = document.getElementById('confirmModal');
+      const confirmMessageElement = document.getElementById('confirmMessage');
+      const confirmActionBtn = document.getElementById('confirmActionBtn');
+
+      confirmModalElement.querySelector('.modal-title').textContent = '確認移除';
+      confirmMessageElement.innerHTML = `確定要移除顧客 <strong>${name}</strong> 嗎？<br>此操作無法復原！`;
       
-      const data = getData();
-      delete data[name];
-      saveData(data);
-      showToast(`已移除顧客 ${name}`);
-      render();
+      // 移除舊的事件監聽器
+      const newConfirmActionBtn = confirmActionBtn.cloneNode(true);
+      confirmActionBtn.parentNode.replaceChild(newConfirmActionBtn, confirmActionBtn);
+
+      // 新增新的事件監聽器
+      newConfirmActionBtn.addEventListener('click', () => {
+        const data = getData();
+        delete data[name];
+        saveData(data);
+        showToast(`已移除顧客 ${name}`);
+        render();
+        bootstrap.Modal.getInstance(confirmModalElement).hide();
+      });
+
+      const confirmModal = new bootstrap.Modal(confirmModalElement);
+      confirmModal.show();
     }
 
     function viewHistory(name) {
@@ -505,32 +574,20 @@
       a.download = `寄杯備份_${formattedDate}.json`;
       a.click();
 
-      showBackupNotice(formattedDate);
+      showBackupNoticeModal('備份檔案已下載', `檔案名稱：<strong>寄杯備份_${formattedDate}.json</strong><hr><p class="mb-0"><strong>iOS 使用者請注意：</strong><br>1. 點擊下載的檔案<br>2. 選擇「儲存到檔案」<br>3. 選擇「我的 iPhone」或「iCloud 雲碟」<br>4. 建議建立「寄杯備份」資料夾存放<br><br><strong>請務必將備份檔案妥善保存，避免資料遺失！</strong></p>`);
     }
 
-    function showBackupNotice(date) {
-      const notice = document.getElementById('backupNotice');
-      notice.innerHTML = `
-        <div class="alert alert-info" role="alert">
-          <h5 class="alert-heading">⚠️ 備份檔案已下載</h5>
-          <p>檔案名稱：<strong>寄杯備份_${date}.json</strong></p>
-          <hr>
-          <p class="mb-0">
-            <strong>iOS 使用者請注意：</strong><br>
-            1. 點擊下載的檔案<br>
-            2. 選擇「儲存到檔案」<br>
-            3. 選擇「我的 iPhone」或「iCloud 雲碟」<br>
-            4. 建議建立「寄杯備份」資料夾存放<br>
-            <br>
-            <strong>請務必將備份檔案妥善保存，避免資料遺失！</strong>
-          </p>
-        </div>
-      `;
-      notice.classList.remove('d-none');
-
-      setTimeout(() => {
-        notice.classList.add('d-none');
-      }, 10000);
+    // 將備份提示改為 Modal
+    function showBackupNoticeModal(title, message) {
+      const modalElement = document.getElementById('backupNoticeModal');
+      const modalTitle = modalElement.querySelector('.modal-title');
+      const modalBody = modalElement.querySelector('.modal-body');
+      
+      modalTitle.textContent = title;
+      modalBody.innerHTML = message;
+      
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
     }
 
     function importBackup(event) {
@@ -552,24 +609,10 @@
           const merged = { ...existing, ...imported.data };
           saveData(merged);
           
-          const notice = document.getElementById('backupNotice');
-          notice.innerHTML = `
-            <div class="alert alert-success" role="alert">
-              <h5 class="alert-heading">✅ 匯入成功！</h5>
-              <p>已成功匯入 ${Object.keys(imported.data).length} 筆顧客資料</p>
-              ${imported.totalCups ? `<p>總杯數：${imported.totalCups} 杯</p>` : ''}
-            </div>
-          `;
-          notice.classList.remove('d-none');
-          
-          setTimeout(() => {
-            notice.classList.add('d-none');
-          }, 5000);
-          
-          showToast('備份匯入成功');
+          showBackupNoticeModal('匯入成功！', `✅ 已成功匯入 ${Object.keys(imported.data).length} 筆顧客資料${imported.totalCups ? `<br>總杯數：${imported.totalCups} 杯` : ''}`);
           render();
         } catch (err) {
-          showToast('匯入失敗：' + err.message, 'danger');
+          showBackupNoticeModal('匯入失敗', `❌ ${err.message}`);
         }
       };
       reader.readAsText(file);
@@ -617,7 +660,7 @@
           </div>
           <div class="d-flex justify-content-end align-items-center flex-wrap gap-2">
             <div class="btn-group">
-              <button class="btn btn-success btn-sm" onclick="addCup('${name}')">➕</button>
+              <button class="btn btn-success btn-sm" onclick="showAddMultipleCupsModal('${name}')">➕</button>
               <button class="btn btn-secondary btn-sm" onclick="removeCup('${name}')">➖</button>
             </div>
             <button class="btn btn-outline-info btn-sm" onclick="viewHistory('${name}')">📜 歷史</button>
@@ -629,6 +672,29 @@
       }
 
       updateStats();
+    }
+
+    // 加多杯 Modal 相關函數
+    function showAddMultipleCupsModal(name) {
+      currentCustomerToAddCups = name; // 記錄當前要加杯的顧客
+      document.getElementById('cupsToAddInput').value = '1'; // 預設值設為 1
+      const modal = new bootstrap.Modal(document.getElementById('addMultipleCupsModal'));
+      modal.show();
+    }
+
+    function confirmAddMultipleCups() {
+      const cupsToAdd = parseInt(document.getElementById('cupsToAddInput').value);
+      const name = currentCustomerToAddCups;
+
+      if (isNaN(cupsToAdd) || cupsToAdd <= 0) {
+        showToast('請輸入有效的杯數', 'danger');
+        return;
+      }
+
+      addCup(name, cupsToAdd); // 調用修改後的 addCup 函數
+
+      const modal = bootstrap.Modal.getInstance(document.getElementById('addMultipleCupsModal'));
+      modal.hide();
     }
 
     // 自動備份
