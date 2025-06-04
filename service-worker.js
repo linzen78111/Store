@@ -10,6 +10,7 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+  console.log('Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
@@ -24,6 +25,7 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('activate', event => {
+  console.log('Service Worker activating...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -32,11 +34,13 @@ self.addEventListener('activate', event => {
       );
     })
   );
+  event.waitUntil(clients.claim());
 });
 
 // 監聽訊息，處理跳過等待
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('SKIP_WAITING message received, skipping waiting.');
     self.skipWaiting();
   }
 }); 
