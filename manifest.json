@@ -1,11 +1,12 @@
 {
-  "name": "寄杯管理小工具",
+  "name": "寄杯管理工具",
   "short_name": "寄杯管理",
+  "description": "OPENPOINT 寄杯管理工具",
   "start_url": "./store.html",
   "display": "standalone",
-  "background_color": "#fbc2eb",
-  "theme_color": "#0078d4",
-  "description": "OPENPOINT 風格的寄杯管理工具，支援離線與桌面安裝。",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "version": "1.0.0",
   "icons": [
     {
       "src": "icon-192.png",

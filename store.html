@@ -2022,6 +2022,98 @@
         });
       });
     }
+
+    // 檢查更新相關函數
+    let updateAvailable = false;
+    let newVersion = '';
+    let lastCheckTime = localStorage.getItem('lastUpdateCheck') || 0;
+    const CHECK_INTERVAL = 1000 * 60 * 60; // 每小時檢查一次（可調整）
+
+    async function checkForUpdates(silent = false) {
+      try {
+        // 檢查是否需要更新（避免過於頻繁檢查）
+        const now = Date.now();
+        if (!silent && now - lastCheckTime < CHECK_INTERVAL) {
+          return;
+        }
+        
+        // 更新最後檢查時間
+        lastCheckTime = now;
+        localStorage.setItem('lastUpdateCheck', now);
+        
+        // 獲取 manifest.json
+        const response = await fetch('./manifest.json?t=' + now); // 加入時間戳避免快取
+        const manifest = await response.json();
+        
+        // 獲取當前版本
+        const currentVersion = document.getElementById('currentVersion').textContent;
+        
+        // 比較版本
+        if (manifest.version !== currentVersion) {
+          updateAvailable = true;
+          newVersion = manifest.version;
+          
+          // 顯示更新通知
+          if (confirm(`發現新版本 ${newVersion}！是否要更新？`)) {
+            // 如果用戶選擇更新，重新載入頁面
+            window.location.reload();
+          }
+        } else if (!silent) {
+          alert('您目前使用的是最新版本！');
+        }
+      } catch (error) {
+        console.error('檢查更新時發生錯誤：', error);
+        if (!silent) {
+          alert('檢查更新時發生錯誤，請稍後再試。');
+        }
+      }
+    }
+
+    // 自動檢查更新
+    function startAutoUpdateCheck() {
+      // 頁面載入時檢查一次
+      checkForUpdates(true);
+      
+      // 設定定期檢查
+      setInterval(() => {
+        checkForUpdates(true);
+      }, CHECK_INTERVAL);
+      
+      // 當頁面重新獲得焦點時檢查
+      window.addEventListener('focus', () => {
+        checkForUpdates(true);
+      });
+    }
+
+    // 在 Service Worker 註冊時啟動自動檢查
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try {
+          const registration = await navigator.serviceWorker.register('./service-worker.js');
+          
+          // 啟動自動檢查更新
+          startAutoUpdateCheck();
+          
+          // 監聽 Service Worker 更新
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // 有新的 Service Worker 可用
+                updateAvailable = true;
+                // 顯示更新通知
+                if (confirm('發現新版本！是否要更新？')) {
+                  window.location.reload();
+                }
+              }
+            });
+          });
+        } catch (error) {
+          console.error('Service Worker 註冊失敗：', error);
+        }
+      });
+    }
   </script>
 </body>
 </html>
