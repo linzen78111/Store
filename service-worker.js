@@ -32,4 +32,11 @@ self.addEventListener('activate', event => {
       );
     })
   );
+});
+
+// 監聽訊息，處理跳過等待
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 }); 
