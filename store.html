@@ -2646,8 +2646,10 @@
       window.addEventListener('load', async () => {
         try {
           const registration = await navigator.serviceWorker.register('./service-worker.js');
+          console.log('Service Worker 註冊成功：', registration.scope);
 
-          console.log('Service Worker 註冊成功：', registration);
+          // 啟動自動檢查更新
+          startAutoUpdateCheck();
 
           // 監聽 Service Worker 更新
           registration.addEventListener('updatefound', () => {
@@ -2659,54 +2661,28 @@
               if (newServiceWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 // 有新的 Service Worker 安裝完成並在等待中
                 console.log('New Service Worker installed and waiting.');
-                
-                // 嘗試獲取新版本號並顯示 Modal
-                // ... existing code to fetch manifest and show modal ...
-
-                 // 顯示更新提示 Modal
-                const updateModalElement = document.getElementById('updateModal');
-                if (updateModalElement) {
-                     const updateModal = new bootstrap.Modal(updateModalElement);
-                     updateModal.show();
-                } else {
-                    console.error('Update modal element not found.');
-                }
+                checkForUpdates(false); // 檢查並顯示更新提示
               }
             });
           });
 
-          // 檢查是否有等待中的更新（使用者之前關閉了應用程式）
+          // 檢查是否有等待中的更新
           if (registration.waiting) {
-              newServiceWorker = registration.waiting;
-              console.log('Found waiting Service Worker from previous session.', newServiceWorker);
-               // 顯示更新提示 Modal
-               // ... existing code to fetch manifest and show modal ...
-
-              const updateModalElement = document.getElementById('updateModal');
-                if (updateModalElement) {
-                     const updateModal = new bootstrap.Modal(updateModalElement);
-                     updateModal.show();
-                } else {
-                    console.error('Update modal element not found.');
-                }
+            newServiceWorker = registration.waiting;
+            console.log('Found waiting Service Worker from previous session.');
+            checkForUpdates(false); // 檢查並顯示更新提示
           }
-
-           // 啟動自動檢查更新（可以保留，它用於設定中的手動檢查和定時檢查，但 Service Worker 本身也會檢查）
-           startAutoUpdateCheck(); // 根據需求決定是否保留，保留的話可以更快偵測到 manifest 的變化
 
         } catch (error) {
           console.error('Service Worker 註冊失敗：', error);
-          // 如果 Service Worker 註冊失敗，影響 PWA 功能，可以考慮提示用戶或記錄日誌
         }
       });
 
-      // 監聽 Service Worker 控制權變化（表示新的 Service Worker 已經啟用）
+      // 監聽 Service Worker 控制權變化
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('Controller changed, new Service Worker is active. Reloading page...');
-           // 重新載入頁面以使用新的 Service Worker 控制的檔案
-          window.location.reload();
+        console.log('Controller changed, new Service Worker is active.');
+        window.location.reload();
       });
-
     }
 
     // 應用更新（使用者點擊提示按鈕時觸發）
