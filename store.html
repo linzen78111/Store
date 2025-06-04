@@ -2015,7 +2015,7 @@
     // PWA: 註冊 service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('service-worker.js').then(function(registration) {
+        navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
           console.log('ServiceWorker 註冊成功:', registration.scope);
         }, function(err) {
           console.log('ServiceWorker 註冊失敗:', err);

@@ -1,7 +1,7 @@
 {
   "name": "寄杯管理小工具",
   "short_name": "寄杯管理",
-  "start_url": "./",
+  "start_url": "./store.html",
   "display": "standalone",
   "background_color": "#fbc2eb",
   "theme_color": "#0078d4",
