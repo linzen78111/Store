@@ -2,215 +2,187 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>寄杯小工具</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-      background-color: #fffbe7;
-      padding: 2rem;
-      font-family: 'Helvetica Neue', sans-serif;
-    }
-    h1 {
-      color: #6b4c3b;
-      margin-bottom: 1.5rem;
-      user-select: none;
+      background: #f9f9f9;
+      font-family: "Noto Sans TC", sans-serif;
     }
     .card {
-      margin-bottom: 1rem;
+      transition: 0.2s;
     }
-    .btn {
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
+    .card:hover {
+      transform: scale(1.01);
     }
   </style>
 </head>
-<body>
+<body class="container py-4">
 
-  <h1>🥤 寄杯小工具</h1>
+  <h1 class="mb-4 text-center">☕ 寄杯管理小工具</h1>
 
+  <!-- 顧客輸入欄 -->
   <div class="mb-3">
-    <input id="nameInput" class="form-control" placeholder="輸入顧客名稱" autocomplete="off" />
+    <input id="customerName" class="form-control" placeholder="請輸入顧客名稱（例：阿強）" />
   </div>
+
+  <!-- 搜尋欄位 -->
   <div class="mb-3">
-    <input id="countInput" type="number" class="form-control" placeholder="杯數" min="1" />
+    <input id="searchInput" class="form-control" placeholder="🔍 搜尋顧客名稱" oninput="render()" />
   </div>
+
+  <!-- 按鈕列 -->
   <div class="mb-3 d-flex flex-wrap gap-2">
-    <button class="btn btn-primary" onclick="addCustomer()">➕ 新增寄杯</button>
-    <button class="btn btn-danger" onclick="subtractCup()">➖ 扣杯</button>
-    <button class="btn btn-secondary" onclick="backupNow()">📥 手動備份</button>
-    <button class="btn btn-success" onclick="exportExcel()">📊 匯出 Excel</button>
+    <button class="btn btn-success" onclick="addCup()">➕ 加一杯</button>
+    <button class="btn btn-secondary" onclick="removeCup()">➖ 扣一杯</button>
+    <button class="btn btn-info" onclick="backup()">💾 手動備份</button>
+    <button class="btn btn-primary" onclick="exportExcel()">📤 匯出 Excel</button>
+    <input type="file" id="importInput" accept=".json" style="display: none" onchange="importBackup(event)" />
+    <button class="btn btn-warning" onclick="document.getElementById('importInput').click()">📥 匯入備份</button>
   </div>
 
-  <div id="customerList"></div>
+  <!-- 顧客列表 -->
+  <div id="customerList" class="vstack gap-2"></div>
 
-  <!-- Bootstrap Modal -->
-  <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+  <!-- 查看歷史 Modal（簡易） -->
+  <div id="historyModal" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="historyModalLabel">歷史紀錄</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          <h5 class="modal-title">📜 顧客歷史紀錄</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body" id="modalBodyContent">
-          <!-- 歷史紀錄內容會動態帶入 -->
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-        </div>
+        <div class="modal-body" id="historyContent"></div>
       </div>
     </div>
   </div>
 
-  <!-- SheetJS -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JS 區塊 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
   <script>
-    const today = new Date().toISOString().split('T')[0];
-
-    // 讀取資料
     function getData() {
-      return JSON.parse(localStorage.getItem('cupData') || '{}');
+      return JSON.parse(localStorage.getItem('cups') || '{}');
     }
 
-    // 存資料
     function saveData(data) {
-      localStorage.setItem('cupData', JSON.stringify(data));
+      localStorage.setItem('cups', JSON.stringify(data));
     }
 
-    // 顯示清單
     function render() {
       const data = getData();
       const list = document.getElementById('customerList');
+      const searchKeyword = document.getElementById('searchInput')?.value?.trim().toLowerCase() || '';
       list.innerHTML = '';
 
-      if (Object.keys(data).length === 0) {
-        list.innerHTML = '<p class="text-muted">目前沒有寄杯資料，趕快新增吧！</p>';
+      const filteredNames = Object.keys(data).filter(name =>
+        name.toLowerCase().includes(searchKeyword)
+      );
+
+      if (filteredNames.length === 0) {
+        list.innerHTML = '<p class="text-muted">找不到符合的顧客，請重新輸入名稱。</p>';
         return;
       }
 
-      for (const name in data) {
+      for (const name of filteredNames) {
         const customer = data[name];
         const card = document.createElement('div');
         card.className = 'card shadow-sm';
         card.innerHTML = `
-          <div class="card-body d-flex justify-content-between align-items-center">
+          <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h5 class="card-title mb-0">${name}：<span class="badge bg-primary">${customer.count} 杯</span></h5>
-            <button class="btn btn-outline-info btn-sm" onclick="viewHistory('${name}')">📜 查看歷史</button>
+            <div>
+              <button class="btn btn-outline-info btn-sm me-2" onclick="viewHistory('${name}')">📜 查看歷史</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="removeCustomer('${name}')">🗑️ 移除</button>
+            </div>
           </div>
         `;
         list.appendChild(card);
       }
     }
 
-    // 新增寄杯
-    function addCustomer() {
-      const name = document.getElementById('nameInput').value.trim();
-      const count = parseInt(document.getElementById('countInput').value);
-
+    function addCup() {
+      const name = document.getElementById('customerName').value.trim();
       if (!name) return alert('請輸入顧客名稱');
-      if (isNaN(count) || count <= 0) return alert('請輸入正確的杯數');
-
       const data = getData();
-      if (!data[name]) data[name] = { count: 0, history: [] };
-      data[name].count += count;
-      data[name].history.push({ type: 'add', count, time: new Date().toISOString() });
-
+      if (!data[name]) data[name] = { count: 0, log: [] };
+      data[name].count++;
+      data[name].log.push(`+1 杯（${new Date().toLocaleString()}）`);
       saveData(data);
       render();
-      clearInputs();
     }
 
-    // 扣杯
-    function subtractCup() {
-      const name = document.getElementById('nameInput').value.trim();
-      const count = parseInt(document.getElementById('countInput').value);
-
+    function removeCup() {
+      const name = document.getElementById('customerName').value.trim();
       if (!name) return alert('請輸入顧客名稱');
-      if (isNaN(count) || count <= 0) return alert('請輸入正確的杯數');
-
       const data = getData();
-      if (!data[name]) return alert('查無此顧客');
-      if (data[name].count < count) return alert('杯數不足，無法扣除');
-
-      data[name].count -= count;
-      data[name].history.push({ type: 'subtract', count, time: new Date().toISOString() });
-
+      if (!data[name] || data[name].count <= 0) return alert('無法扣除，該顧客尚無杯數');
+      data[name].count--;
+      data[name].log.push(`-1 杯（${new Date().toLocaleString()}）`);
       saveData(data);
       render();
-      clearInputs();
     }
 
-    // 清空輸入欄位
-    function clearInputs() {
-      document.getElementById('nameInput').value = '';
-      document.getElementById('countInput').value = '';
-      document.getElementById('nameInput').focus();
+    function removeCustomer(name) {
+      if (!confirm(`確定要移除 ${name} 嗎？`)) return;
+      const data = getData();
+      delete data[name];
+      saveData(data);
+      render();
     }
 
-    // 查看歷史 - 用 Modal 彈窗
     function viewHistory(name) {
       const data = getData();
-      if (!data[name]) return alert('查無此顧客');
-
-      const history = data[name].history
-        .map(h => {
-          const action = h.type === 'add' ? '新增' : '扣除';
-          const time = new Date(h.time).toLocaleString();
-          return `<li>${time} - ${action} ${h.count} 杯</li>`;
-        })
-        .join('');
-
-      const modalBody = document.getElementById('modalBodyContent');
-      modalBody.innerHTML = history ? `<ul>${history}</ul>` : '<p class="text-muted">沒有歷史紀錄</p>';
-
-      const modalTitle = document.getElementById('historyModalLabel');
-      modalTitle.textContent = `${name} 的歷史紀錄`;
-
-      const historyModal = new bootstrap.Modal(document.getElementById('historyModal'));
-      historyModal.show();
+      const log = data[name]?.log || [];
+      document.getElementById('historyContent').innerHTML =
+        `<ul class="list-group">${log.map(item => `<li class="list-group-item">${item}</li>`).join('')}</ul>`;
+      new bootstrap.Modal(document.getElementById('historyModal')).show();
     }
 
-    // 手動備份成 JSON 檔案
-    function backupNow() {
+    function backup() {
       const data = getData();
-      const blob = new Blob([JSON.stringify({ date: today, data }, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
+      const blob = new Blob([JSON.stringify({ data, date: new Date() }, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `backup_${today}.json`;
-      document.body.appendChild(a);
+      a.href = URL.createObjectURL(blob);
+      a.download = `cups-backup-${Date.now()}.json`;
       a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
     }
 
-    // 每日自動備份（只備份一次）
-    function autoBackupOncePerDay() {
-      const last = localStorage.getItem('lastBackupDate');
-      if (last !== today) {
-        backupNow();
-        localStorage.setItem('lastBackupDate', today);
-      }
+    function importBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!imported.data) throw new Error('備份格式錯誤');
+          const existing = getData();
+          const merged = { ...existing, ...imported.data };
+          saveData(merged);
+          alert('匯入成功！');
+          render();
+        } catch (err) {
+          alert('匯入失敗：' + err.message);
+        }
+      };
+      reader.readAsText(file);
     }
 
-    // 匯出 Excel
     function exportExcel() {
       const data = getData();
-      const rows = [];
-      for (const name in data) {
-        rows.push({ 顧客: name, 杯數: data[name].count });
-      }
-      const worksheet = XLSX.utils.json_to_sheet(rows);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "寄杯紀錄");
-      XLSX.writeFile(workbook, `寄杯紀錄_${today}.xlsx`);
+      const ws = XLSX.utils.json_to_sheet(Object.keys(data).map(name => ({
+        顧客: name,
+        杯數: data[name].count
+      })));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '寄杯紀錄');
+      XLSX.writeFile(wb, '寄杯紀錄.xlsx');
     }
 
-    // 初始渲染 + 自動備份
+    // 初始化
     render();
-    autoBackupOncePerDay();
   </script>
 </body>
 </html>
