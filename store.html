@@ -6,33 +6,20 @@
   <title>寄杯管理小工具 - OPENPOINT風格</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-  <style>
-  body {
-    font-family: "Noto Sans TC", sans-serif;
-    background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1, #fbc2eb);
-    background-size: 1000% 1000%;
-    animation: gradientShift 30s ease infinite;
-    transition: background 0.5s ease;
-  }
-
-  @keyframes gradientShift {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
-  }
-</style>
-  <style>
     /* 字體與背景 */
     body {
-      
       font-family: "Noto Sans TC", sans-serif;
+      background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1, #fbc2eb);
+      background-size: 1000% 1000%;
+      animation: gradientShift 30s ease infinite;
+      transition: background 0.5s ease;
       color: #333;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     /* 卡片 */
@@ -107,8 +94,8 @@
     }
 
     @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.7);}
-      50% { box-shadow: 0 0 15px rgba(220, 53, 69, 1);}
+      0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.7); }
+      50% { box-shadow: 0 0 15px rgba(220, 53, 69, 1); }
     }
 
     /* 搜尋欄陰影 */
@@ -122,16 +109,101 @@
       gap: 10px;
       flex-wrap: wrap;
     }
-  </style>
+
+    /* 新增樣式 */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1050;
+    }
+
+    .customer-card {
+      transition: all 0.3s ease;
+    }
+
+    .customer-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stats-badge {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.5rem;
+      margin-left: 0.5rem;
+    }
+
+    .note-badge {
+      background-color: #6c757d;
+      color: white;
+      font-size: 0.8rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+
+    .note-badge:hover {
+      background-color: #5a6268;
+    }
+
+    @media (max-width: 576px) {
+      .btn-group {
+        flex-direction: column;
+        width: 100%;
+      }
+      .btn-group .btn {
+        width: 100%;
+        margin: 2px 0;
+        padding: .25rem .5rem;
+        font-size: .875rem;
+      }
+      .customer-card .d-flex {
+        flex-direction: column;
+        align-items: stretch !important;
+      }
+      .customer-card .btn-group {
+        margin-top: 10px;
+      }
+      .customer-card .d-flex > div:last-child {
+        gap: 5px !important;
+      }
+    }
+
+    /* 進一步縮小顧客卡片內的按鈕 */
+    .customer-card .btn-group .btn,
+    .customer-card .btn-outline-info.btn-sm,
+    .customer-card .btn-outline-danger.btn-sm {
+      padding: .2rem .4rem; /* 稍微縮小內距 */
+      font-size: .8rem; /* 縮小字體 */
+      border-radius: 8px; /* 調整圓角 */
+    }
+
+    .customer-card .d-flex > div:last-child {
+      gap: 8px; /* 調整按鈕之間的間距 */
+    }
+
+    /* 新增樣式以調整卡片內部結構間距 */
+    .customer-card > div:first-child {
+        margin-bottom: 10px; /* 增加名稱/備註區域和按鈕區域之間的間距 */
+    }
   </style>
 </head>
 <body class="container py-4">
 
   <h1 class="mb-4 text-center">☕ 寄杯管理小工具</h1>
 
-  <!-- 顧客輸入欄 -->
-  <div class="mb-3">
-    <input id="customerName" class="form-control" placeholder="請輸入顧客名稱（例：阿強）" />
+  <!-- 統計資訊 -->
+  <div class="alert alert-info mb-3" role="alert">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <span class="badge bg-primary me-2">總顧客數：<span id="totalCustomers">0</span></span>
+        <span class="badge bg-success me-2">總杯數：<span id="totalCups">0</span></span>
+        <span class="badge bg-warning text-dark">最後更新：<span id="lastUpdate">-</span></span>
+      </div>
+      <div class="mt-2 mt-sm-0">
+        <button class="btn btn-sm btn-outline-primary" onclick="showQuickSearch()">🔍 快速搜尋</button>
+      </div>
+    </div>
   </div>
 
   <!-- 搜尋欄位 -->
@@ -141,10 +213,7 @@
 
   <!-- 按鈕列 -->
   <div class="mb-3 d-flex flex-wrap gap-2 btn-group">
-    <button class="btn btn-success" onclick="addCup()">➕ 加一杯</button>
-    <button class="btn btn-secondary" onclick="removeCup()">➖ 扣一杯</button>
     <button class="btn btn-info" onclick="backup()">💾 手動備份</button>
-    <button class="btn btn-primary" onclick="exportExcel()">📤 匯出 Excel</button>
     <input type="file" id="importInput" accept=".json" style="display:none" onchange="importBackup(event)" />
     <button class="btn btn-warning" onclick="document.getElementById('importInput').click()">📥 匯入備份</button>
   </div>
@@ -154,6 +223,9 @@
 
   <!-- 備份提示 -->
   <div id="backupNotice" class="alert alert-info d-none" role="alert"></div>
+
+  <!-- Toast 提示容器 -->
+  <div class="toast-container"></div>
 
   <!-- 查看歷史 Modal -->
   <div id="historyModal" class="modal fade" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
@@ -168,11 +240,76 @@
     </div>
   </div>
 
+  <!-- 新增顧客 Modal -->
+  <div id="addCustomerModal" class="modal fade" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCustomerModalLabel">➕ 新增顧客</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="newCustomerName" class="form-label">顧客名稱</label>
+            <input type="text" id="newCustomerName" class="form-control" placeholder="請輸入顧客名稱" />
+          </div>
+          <div class="mb-3">
+            <label for="newCustomerNote" class="form-label">備註（選填）</label>
+            <textarea id="newCustomerNote" class="form-control" placeholder="可以輸入顧客的特別備註" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" onclick="addNewCustomer()">新增</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 編輯備註 Modal -->
+  <div id="editNoteModal" class="modal fade" tabindex="-1" aria-labelledby="editNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editNoteModalLabel">📝 編輯備註</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="editCustomerNote" class="form-label">備註內容</label>
+            <textarea id="editCustomerNote" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" onclick="saveCustomerNote()">儲存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 快速搜尋 Modal -->
+  <div id="quickSearchModal" class="modal fade" tabindex="-1" aria-labelledby="quickSearchModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="quickSearchModalLabel">🔍 快速搜尋</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="list-group" id="quickSearchList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- JS 區塊 -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-
   <script>
+    // 全域變數
+    let currentEditingCustomer = null;
+
+    // 基礎資料操作函數
     function getData() {
       return JSON.parse(localStorage.getItem('cups') || '{}');
     }
@@ -181,71 +318,154 @@
       localStorage.setItem('cups', JSON.stringify(data));
     }
 
-    function render() {
-      const data = getData();
-      const list = document.getElementById('customerList');
-      const searchKeyword = document.getElementById('searchInput').value.trim().toLowerCase();
-      list.innerHTML = '';
-
-      const filteredNames = Object.keys(data).filter(name =>
-        name.toLowerCase().includes(searchKeyword)
-      );
-
-      if (filteredNames.length === 0) {
-        list.innerHTML = '<p class="text-muted text-center">找不到符合的顧客，請重新輸入名稱。</p>';
-        return;
-      }
-
-      for (const name of filteredNames) {
-        const customer = data[name];
-        const lowCup = customer.count < 2;
-
-        const card = document.createElement('div');
-        card.className = 'card shadow-sm p-3 d-flex justify-content-between align-items-center flex-wrap gap-2';
-
-        card.innerHTML = `
-          <div>
-            <h5 class="mb-0">${name}：
-              <span class="badge ${lowCup ? 'badge-low' : 'bg-primary'}">${customer.count} 杯</span>
-            </h5>
-          </div>
-          <div>
-            <button class="btn btn-outline-info btn-sm me-2" onclick="viewHistory('${name}')">📜 查看歷史</button>
-            <button class="btn btn-outline-danger btn-sm" onclick="removeCustomer('${name}')">🗑️ 移除</button>
-          </div>
-        `;
-
-        list.appendChild(card);
-      }
+    // UI 輔助函數
+    function showToast(message, type = 'success') {
+      const toastContainer = document.querySelector('.toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast align-items-center text-white bg-${type} border-0`;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.setAttribute('aria-atomic', 'true');
+      
+      toast.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      `;
+      
+      toastContainer.appendChild(toast);
+      const bsToast = new bootstrap.Toast(toast);
+      bsToast.show();
+      
+      toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+      });
     }
 
-    function addCup() {
-      const name = document.getElementById('customerName').value.trim();
-      if (!name) return alert('請輸入顧客名稱');
+    function updateStats() {
       const data = getData();
-      if (!data[name]) data[name] = { count: 0, log: [] };
-      data[name].count++;
-      data[name].log.push(`+1 杯（${new Date().toLocaleString()}）`);
+      const customers = Object.keys(data);
+      const totalCups = customers.reduce((sum, name) => sum + data[name].count, 0);
+      
+      document.getElementById('totalCustomers').textContent = customers.length;
+      document.getElementById('totalCups').textContent = totalCups;
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleString('zh-TW');
+    }
+
+    // 搜尋相關函數
+    function showQuickSearch() {
+      const data = getData();
+      const list = document.getElementById('quickSearchList');
+      list.innerHTML = '';
+      
+      Object.keys(data).sort().forEach(name => {
+        const item = document.createElement('button');
+        item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+        item.innerHTML = `
+          <span>${name}</span>
+          <span class="badge bg-primary rounded-pill">${data[name].count} 杯</span>
+        `;
+        item.onclick = () => {
+          document.getElementById('searchInput').value = name;
+          render();
+          bootstrap.Modal.getInstance(document.getElementById('quickSearchModal')).hide();
+        };
+        list.appendChild(item);
+      });
+      
+      new bootstrap.Modal(document.getElementById('quickSearchModal')).show();
+    }
+
+    // 備註相關函數
+    function showEditNoteModal(name) {
+      currentEditingCustomer = name;
+      const data = getData();
+      document.getElementById('editCustomerNote').value = data[name].note || '';
+      new bootstrap.Modal(document.getElementById('editNoteModal')).show();
+    }
+
+    function saveCustomerNote() {
+      if (!currentEditingCustomer) return;
+      
+      const note = document.getElementById('editCustomerNote').value.trim();
+      const data = getData();
+      data[currentEditingCustomer].note = note;
       saveData(data);
+      
+      bootstrap.Modal.getInstance(document.getElementById('editNoteModal')).hide();
+      showToast('備註已更新');
       render();
     }
 
-    function removeCup() {
-      const name = document.getElementById('customerName').value.trim();
-      if (!name) return alert('請輸入顧客名稱');
+    // 顧客管理函數
+    function showAddCustomerModal() {
+      const modal = new bootstrap.Modal(document.getElementById('addCustomerModal'));
+      document.getElementById('newCustomerName').value = '';
+      document.getElementById('newCustomerNote').value = '';
+      modal.show();
+    }
+
+    function addNewCustomer() {
+      const name = document.getElementById('newCustomerName').value.trim();
+      const note = document.getElementById('newCustomerNote').value.trim();
+      
+      if (!name) {
+        showToast('請輸入顧客名稱', 'danger');
+        return;
+      }
+      
       const data = getData();
-      if (!data[name] || data[name].count <= 0) return alert('無法扣除，該顧客尚無杯數');
+      if (data[name]) {
+        showToast('此顧客已存在', 'danger');
+        return;
+      }
+
+      data[name] = { 
+        count: 0, 
+        log: [],
+        note: note,
+        createdAt: new Date().toISOString()
+      };
+      saveData(data);
+      
+      const modal = bootstrap.Modal.getInstance(document.getElementById('addCustomerModal'));
+      modal.hide();
+      
+      showToast('顧客新增成功');
+      render();
+    }
+
+    function addCup(name) {
+      const data = getData();
+      if (!data[name]) data[name] = { count: 0, log: [], createdAt: new Date().toISOString() };
+      data[name].count++;
+      data[name].log.push(`+1 杯（${new Date().toLocaleString()}）`);
+      saveData(data);
+      showToast(`已為 ${name} 加一杯`);
+      render();
+    }
+
+    function removeCup(name) {
+      const data = getData();
+      if (!data[name] || data[name].count <= 0) {
+        showToast('無法扣除，該顧客尚無杯數', 'danger');
+        return;
+      }
       data[name].count--;
       data[name].log.push(`-1 杯（${new Date().toLocaleString()}）`);
       saveData(data);
+      showToast(`已為 ${name} 扣一杯`);
       render();
     }
 
     function removeCustomer(name) {
-      if (!confirm(`確定要移除 ${name} 嗎？`)) return;
+      if (!confirm(`確定要移除 ${name} 嗎？此操作無法復原！`)) return;
+      
       const data = getData();
       delete data[name];
       saveData(data);
+      showToast(`已移除顧客 ${name}`);
       render();
     }
 
@@ -257,76 +477,172 @@
       new bootstrap.Modal(document.getElementById('historyModal')).show();
     }
 
-    // 手動備份：下載 JSON
+    // 備份相關函數
     function backup() {
       const data = getData();
-      const blob = new Blob([JSON.stringify({ data, date: new Date() }, null, 2)], { type: 'application/json' });
+      const now = new Date();
+      const formattedDate = now.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).replace(/[/:]/g, '-').replace(/\s/g, '_');
+
+      const backupData = {
+        version: '1.0',
+        exportDate: now.toISOString(),
+        data: data,
+        totalCustomers: Object.keys(data).length,
+        totalCups: Object.values(data).reduce((sum, customer) => sum + customer.count, 0)
+      };
+
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `cups-backup-${Date.now()}.json`;
+      a.download = `寄杯備份_${formattedDate}.json`;
       a.click();
 
-      showBackupNotice();
+      showBackupNotice(formattedDate);
     }
 
-    // 匯入備份
+    function showBackupNotice(date) {
+      const notice = document.getElementById('backupNotice');
+      notice.innerHTML = `
+        <div class="alert alert-info" role="alert">
+          <h5 class="alert-heading">⚠️ 備份檔案已下載</h5>
+          <p>檔案名稱：<strong>寄杯備份_${date}.json</strong></p>
+          <hr>
+          <p class="mb-0">
+            <strong>iOS 使用者請注意：</strong><br>
+            1. 點擊下載的檔案<br>
+            2. 選擇「儲存到檔案」<br>
+            3. 選擇「我的 iPhone」或「iCloud 雲碟」<br>
+            4. 建議建立「寄杯備份」資料夾存放<br>
+            <br>
+            <strong>請務必將備份檔案妥善保存，避免資料遺失！</strong>
+          </p>
+        </div>
+      `;
+      notice.classList.remove('d-none');
+
+      setTimeout(() => {
+        notice.classList.add('d-none');
+      }, 10000);
+    }
+
     function importBackup(event) {
       const file = event.target.files[0];
       if (!file) return;
+      
       const reader = new FileReader();
       reader.onload = function (e) {
         try {
           const imported = JSON.parse(e.target.result);
           if (!imported.data) throw new Error('備份格式錯誤');
+          
+          if (imported.version) {
+            console.log(`匯入備份版本：${imported.version}`);
+            console.log(`備份時間：${new Date(imported.exportDate).toLocaleString('zh-TW')}`);
+          }
+
           const existing = getData();
           const merged = { ...existing, ...imported.data };
           saveData(merged);
-          alert('匯入成功！');
+          
+          const notice = document.getElementById('backupNotice');
+          notice.innerHTML = `
+            <div class="alert alert-success" role="alert">
+              <h5 class="alert-heading">✅ 匯入成功！</h5>
+              <p>已成功匯入 ${Object.keys(imported.data).length} 筆顧客資料</p>
+              ${imported.totalCups ? `<p>總杯數：${imported.totalCups} 杯</p>` : ''}
+            </div>
+          `;
+          notice.classList.remove('d-none');
+          
+          setTimeout(() => {
+            notice.classList.add('d-none');
+          }, 5000);
+          
+          showToast('備份匯入成功');
           render();
         } catch (err) {
-          alert('匯入失敗：' + err.message);
+          showToast('匯入失敗：' + err.message, 'danger');
         }
       };
       reader.readAsText(file);
     }
 
-    // 匯出 Excel
-    function exportExcel() {
+    // 渲染函數
+    function render() {
       const data = getData();
-      const ws = XLSX.utils.json_to_sheet(Object.keys(data).map(name => ({
-        顧客: name,
-        杯數: data[name].count
-      })));
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, '寄杯紀錄');
-      XLSX.writeFile(wb, '寄杯紀錄.xlsx');
+      const list = document.getElementById('customerList');
+      const searchKeyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      list.innerHTML = '';
+
+      const filteredNames = Object.keys(data).filter(name =>
+        name.toLowerCase().includes(searchKeyword)
+      );
+
+      if (filteredNames.length === 0) {
+        list.innerHTML = `
+          <div class="text-center">
+            <p class="text-muted">找不到符合的顧客</p>
+            <button class="btn btn-primary" onclick="showAddCustomerModal()">➕ 新增顧客</button>
+          </div>`;
+        return;
+      }
+
+      // 新增顧客按鈕
+      const addButton = document.createElement('div');
+      addButton.className = 'text-center mb-3';
+      addButton.innerHTML = '<button class="btn btn-primary" onclick="showAddCustomerModal()">➕ 新增顧客</button>';
+      list.appendChild(addButton);
+
+      for (const name of filteredNames) {
+        const customer = data[name];
+        const lowCup = customer.count < 2;
+
+        const card = document.createElement('div');
+        card.className = 'card shadow-sm p-3 customer-card';
+        card.innerHTML = `
+          <div>
+            <h5 class="mb-1">${name}：
+              <span class="badge ${lowCup ? 'badge-low' : 'bg-primary'}">${customer.count} 杯</span>
+              ${customer.note ? `<span class="note-badge" onclick="showEditNoteModal('${name}')">📝</span>` : ''}
+            </h5>
+            ${customer.note ? `<small class="text-muted d-block mb-2">${customer.note}</small>` : ''}
+          </div>
+          <div class="d-flex justify-content-end align-items-center flex-wrap gap-2">
+            <div class="btn-group">
+              <button class="btn btn-success btn-sm" onclick="addCup('${name}')">➕</button>
+              <button class="btn btn-secondary btn-sm" onclick="removeCup('${name}')">➖</button>
+            </div>
+            <button class="btn btn-outline-info btn-sm" onclick="viewHistory('${name}')">📜 歷史</button>
+            <button class="btn btn-outline-danger btn-sm" onclick="removeCustomer('${name}')">🗑️ 移除</button>
+          </div>
+        `;
+
+        list.appendChild(card);
+      }
+
+      updateStats();
     }
 
-    // 顯示備份提示
-    function showBackupNotice() {
-      const notice = document.getElementById('backupNotice');
-      notice.textContent = '⚠️ 自動備份已完成，請務必將下載的 JSON 檔案妥善保存，避免資料遺失！建議備份到您的電腦或雲端硬碟。';
-      notice.classList.remove('d-none');
-
-      // 5秒後隱藏提示
-      setTimeout(() => {
-        notice.classList.add('d-none');
-      }, 5000);
-    }
-
-    // 自動備份（每 1 小時）
+    // 自動備份
     function autoBackup() {
       backup();
       console.log('自動備份完成，記得存好檔案喔！');
     }
 
-    // 頁面載入時執行
-    render();
-
-    // 啟動自動備份，每 1 小時 (3600000 ms)
-    setInterval(autoBackup, 3600000);
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      render();
+      // 啟動自動備份，每 1 小時 (3600000 ms)
+      setInterval(autoBackup, 3600000);
+    });
   </script>
-
 </body>
 </html>
-``
