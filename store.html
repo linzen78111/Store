@@ -392,7 +392,12 @@
 </head>
 <body class="container py-4">
 
-  <h1 class="mb-4 text-center">☕ 寄杯管理小工具</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">☕ 寄杯管理小工具</h1>
+    <div class="mt-2 mt-sm-0">
+      <button class="btn btn-sm btn-outline-primary" onclick="showQuickSearch()">🔍 快速搜尋</button>
+    </div>
+  </div>
 
   <!-- 統計資訊 -->
   <div class="alert alert-info mb-3" role="alert">
@@ -401,9 +406,6 @@
         <span class="badge bg-primary me-2">總顧客數：<span id="totalCustomers">0</span></span>
         <span class="badge bg-success me-2">總杯數：<span id="totalCups">0</span></span>
         <span class="badge bg-warning text-dark">最後更新：<span id="lastUpdate">-</span></span>
-      </div>
-      <div class="mt-2 mt-sm-0">
-        <button class="btn btn-sm btn-outline-primary" onclick="showQuickSearch()">🔍 快速搜尋</button>
       </div>
     </div>
   </div>
@@ -420,7 +422,9 @@
     <button class="btn btn-info" onclick="backup()">💾 手動備份</button>
     <input type="file" id="importInput" accept=".json" style="display:none" onchange="importBackup(event)" />
     <button class="btn btn-warning" onclick="document.getElementById('importInput').click()">📥 匯入備份</button>
-      <button class="btn btn-secondary" onclick="showSettingsModal()">⚙️ 設定</button>
+    <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#settingsModal">
+      ⚙️ 設定
+    </button>
   </div>
 
   <!-- 顧客列表 -->
@@ -601,87 +605,6 @@
     </div>
   </div>
 
-  <!-- 設定 Modal -->
-  <div id="settingsModal" class="modal fade" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content rounded-4 shadow-sm">
-        <div class="modal-header">
-          <h5 class="modal-title" id="settingsModalLabel">⚙️ 設定</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="accordion" id="settingsAccordion">
-            <!-- 基本設定 -->
-            <div class="accordion-item">
-              <h2 class="accordion-header">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#basicSettings">
-                  基本設定
-                </button>
-              </h2>
-              <div id="basicSettings" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
-                <div class="accordion-body">
-                  <div class="mb-3">
-                    <label for="autoBackupIntervalInput" class="form-label">自動備份間隔 (小時)</label>
-                    <input type="number" id="autoBackupIntervalInput" class="form-control" value="1" min="1" />
-                  </div>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="enablePredictiveSorting">
-                    <label class="form-check-label" for="enablePredictiveSorting">啟用預測排序</label>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="enableDarkMode">
-                    <label class="form-check-label" for="enableDarkMode">啟用深色模式</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 商品類型管理 -->
-            <div class="accordion-item">
-              <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#productTypeSettings">
-                  商品類型管理
-                </button>
-              </h2>
-              <div id="productTypeSettings" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
-                <div class="accordion-body">
-                  <div class="input-group mb-2">
-                    <input type="text" id="newProductType" class="form-control" placeholder="輸入新商品類型">
-                    <button class="btn btn-outline-primary" onclick="addProductType()">新增</button>
-                  </div>
-                  <div id="productTypeList" class="list-group">
-                    <!-- 商品類型列表將在這裡動態生成 -->
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 報表設定 -->
-            <div class="accordion-item">
-              <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#reportSettings">
-                  報表設定
-                </button>
-              </h2>
-              <div id="reportSettings" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
-                <div class="accordion-body">
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-outline-primary" onclick="showDailyReport()">📊 查看日結報表</button>
-                    <button class="btn btn-outline-primary" onclick="showMonthlyReport()">📈 查看月結報表</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-          <button type="button" class="btn btn-primary" onclick="saveAutoBackupSetting()">儲存設定</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- 編輯商品類型 Modal -->
   <div id="editProductTypeModal" class="modal fade" tabindex="-1" aria-labelledby="editProductTypeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -739,6 +662,117 @@
             <button class="btn btn-outline-primary" onclick="showCurrentMonthReport()">本月</button>
           </div>
           <div id="monthlyReportContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 設定 Modal -->
+  <div id="settingsModal" class="modal fade" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="settingsModalLabel">⚙️ 設定</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="accordion" id="settingsAccordion">
+            <!-- 版本更新 -->
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#updateSettings" aria-expanded="true" aria-controls="updateSettings">
+                  版本更新
+                </button>
+              </h2>
+              <div id="updateSettings" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
+                <div class="accordion-body">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>目前版本：<span id="currentVersion" class="fw-bold">1.0.0</span></span>
+                    <small class="text-muted">上次檢查：<span id="lastCheckTime">尚未檢查</span></small>
+                  </div>
+                  <button type="button" class="btn btn-primary w-100" onclick="checkForUpdates(false)">
+                    <i class="bi bi-arrow-clockwise"></i> 檢查更新
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 基本設定 -->
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#basicSettings" aria-expanded="false" aria-controls="basicSettings">
+                  基本設定
+                </button>
+              </h2>
+              <div id="basicSettings" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+                <div class="accordion-body">
+                  <div class="mb-3">
+                    <label for="autoBackupIntervalInput" class="form-label">自動備份間隔 (小時)</label>
+                    <input type="number" id="autoBackupIntervalInput" class="form-control" placeholder="1" min="1" />
+                  </div>
+                  <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="enablePredictiveSorting">
+                    <label class="form-check-label" for="enablePredictiveSorting">啟用預測排序</label>
+                  </div>
+                  <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="enableDarkMode">
+                    <label class="form-check-label" for="enableDarkMode">啟用深色模式</label>
+                  </div>
+                  <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="enableDailyReport">
+                    <label class="form-check-label" for="enableDailyReport">啟用日結報表</label>
+                  </div>
+                   <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="enableMonthlyReport">
+                    <label class="form-check-label" for="enableMonthlyReport">啟用月結報表</label>
+                  </div>
+                  <!-- 其他基本設定 -->
+                </div>
+              </div>
+            </div>
+
+            <!-- 商品類型管理 -->
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#productTypeSettings" aria-expanded="false" aria-controls="productTypeSettings">
+                  商品類型管理
+                </button>
+              </h2>
+              <div id="productTypeSettings" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+                <div class="accordion-body">
+                  <div class="input-group mb-2">
+                    <input type="text" id="newProductType" class="form-control" placeholder="輸入新商品類型">
+                    <button class="btn btn-outline-primary" onclick="addProductType()">新增</button>
+                  </div>
+                  <div id="productTypeList" class="list-group">
+                    <!-- 商品類型列表將在這裡動態生成 -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 報表設定 -->
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#reportSettings" aria-expanded="false" aria-controls="reportSettings">
+                  報表設定
+                </button>
+              </h2>
+              <div id="reportSettings" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+                <div class="accordion-body">
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" onclick="hideSettingsModal(); showDailyReport();">📊 查看日結報表</button>
+                    <button class="btn btn-outline-primary" onclick="hideSettingsModal(); showMonthlyReport();">📈 查看月結報表</button>
+                  </div>
+                  <!-- 其他報表設定 -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+          <button type="button" class="btn btn-primary" onclick="saveSettings()">儲存設定</button>
         </div>
       </div>
     </div>
@@ -1263,34 +1297,149 @@
 
     // 商品類型管理相關函數
     function getProductTypes() {
-      return JSON.parse(localStorage.getItem('productTypes') || '["鐵觀音", "烏龍茶", "紅茶", "綠茶", "其他"]');
+      try {
+        const item = localStorage.getItem('productTypes');
+        // 如果 item 是 null, undefined 字串, 或空字串，則使用預設商品類型
+        if (item === null || item === 'undefined' || item === '') {
+            console.log('LocalStorage productTypes not found or invalid, using default types.');
+            // 返回預設商品類型
+            return ["鐵觀音", "烏龍茶", "紅茶", "綠茶", "其他"];
+        }
+
+        const productTypes = JSON.parse(item); // 嘗試解析讀取到的字串
+         // 確保解析結果是陣列
+        if (!Array.isArray(productTypes)) {
+            console.error('productTypes in localStorage is not an array after parsing, using default types.');
+             // 解析失敗也使用預設商品類型
+            return ["鐵觀音", "烏龍茶", "紅茶", "綠茶", "其他"];
+        }
+        return productTypes;
+      } catch (error) {
+        console.error('讀取商品類型時發生錯誤：', error);
+         // 發生解析錯誤時返回預設商品類型
+        return ["鐵觀音", "烏龍茶", "紅茶", "綠茶", "其他"];
+      }
     }
 
-    function saveProductTypes(types) {
-      localStorage.setItem('productTypes', JSON.stringify(types));
+    function saveProductTypes(productTypes) {
+      try {
+        localStorage.setItem('productTypes', JSON.stringify(productTypes));
+      } catch (error) {
+        console.error('儲存商品類型時發生錯誤：', error);
+      }
     }
 
-    function addProductType() {
-      const input = document.getElementById('newProductType');
-      const newType = input.value.trim();
-      
-      if (!newType) {
-        showToast('請輸入商品類型名稱', 'danger');
-        return;
+    // 載入商品類型列表到設定 Modal
+    function loadProductTypes() {
+      const productTypeListElement = document.getElementById('productTypeList');
+      if (!productTypeListElement) return; // 確保元素存在
+
+      const productTypes = getProductTypes();
+      productTypeListElement.innerHTML = ''; // 清空現有列表
+
+      if (productTypes.length === 0) {
+          // 如果 localStorage 沒有，顯示預設選項提示或直接載入預設？
+          // 目前 getProductTypes 在沒有儲存時會返回預設，所以這裡理論上不會是空
+          // 但為保險起見，可以加一個提示或載入預設 UI
       }
 
-      const types = getProductTypes();
-      if (types.includes(newType)) {
-        showToast('此商品類型已存在', 'danger');
-        return;
-      }
-
-      types.push(newType);
-      saveProductTypes(types);
-      input.value = '';
-      showToast('商品類型新增成功');
-      renderProductTypeList();
+      productTypes.forEach(type => {
+        const item = document.createElement('div');
+        item.className = 'list-group-item d-flex justify-content-between align-items-center';
+        item.innerHTML = `
+          <span>${type}</span>
+          <button type="button" class="btn btn-sm btn-danger" onclick="removeProductType('${escapeHtml(type)}')">移除</button>
+        `;
+        productTypeListElement.appendChild(item);
+      });
+       // 更新新增顧客 Modal 中的商品類型下拉選單
       updateProductTypeSelects();
+    }
+
+    // 新增商品類型
+    function addProductType() {
+      const newProductTypeInput = document.getElementById('newProductType');
+      const newType = newProductTypeInput.value.trim();
+      
+      if (newType === '') {
+        showToast('請輸入商品類型名稱', 'warning');
+        return;
+      }
+
+      const productTypes = getProductTypes();
+      if (productTypes.includes(newType)) {
+        showToast('商品類型已存在', 'warning');
+        return;
+      }
+
+      productTypes.push(newType);
+      saveProductTypes(productTypes);
+      showToast('商品類型新增成功');
+      newProductTypeInput.value = '';
+      loadProductTypes(); // 重新載入列表
+    }
+
+    // 移除商品類型
+    function removeProductType(type) {
+       // 先隱藏設定 Modal，確保確認視窗在最上層
+      hideSettingsModal();
+
+      const confirmModalElement = document.getElementById('confirmModal');
+      const confirmMessageElement = document.getElementById('confirmMessage');
+      const confirmActionBtn = document.getElementById('confirmActionBtn');
+
+      confirmModalElement.querySelector('.modal-title').textContent = '確認移除商品類型';
+      confirmMessageElement.innerHTML = `確定要移除商品類型 <strong>${escapeHtml(type)}</strong> 嗎？`;
+      
+      // 移除舊的事件監聽器
+      const newConfirmActionBtn = confirmActionBtn.cloneNode(true);
+      confirmActionBtn.parentNode.replaceChild(newConfirmActionBtn, confirmActionBtn);
+
+      // 新增新的事件監聽器
+      newConfirmActionBtn.addEventListener('click', () => {
+        let productTypes = getProductTypes();
+        productTypes = productTypes.filter(t => t !== type);
+        saveProductTypes(productTypes);
+        showToast('商品類型已移除');
+        loadProductTypes(); // 重新載入列表
+        bootstrap.Modal.getInstance(confirmModalElement).hide();
+      });
+
+      const confirmModal = new bootstrap.Modal(confirmModalElement);
+      confirmModal.show();
+    }
+
+    // 更新新增顧客 Modal 中的商品類型下拉選單
+    function updateProductTypeSelects() {
+      const productTypeSelect = document.getElementById('newCustomerProductType');
+      if (!productTypeSelect) return; // 確保元素存在
+      
+      const productTypes = getProductTypes();
+      // 清空現有選項（保留第一個預設選項，或全部清空自行決定）
+      productTypeSelect.innerHTML = '';
+
+       // 加入預設選項（如果需要）
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = '請選擇商品類型';
+      productTypeSelect.appendChild(defaultOption);
+
+      productTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        productTypeSelect.appendChild(option);
+      });
+    }
+
+    // HTML escaping 函數，防止 XSS 攻擊
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
     function editProductType(oldType) {
@@ -1377,21 +1526,6 @@
           </div>
         </div>
       `).join('');
-    }
-
-    function updateProductTypeSelects() {
-      const types = getProductTypes();
-      const options = types.map(type => `<option value="${type}">${type}</option>`).join('');
-      
-      // 更新所有商品類型選擇器
-      document.querySelectorAll('select[id$="ProductType"]').forEach(select => {
-        const currentValue = select.value;
-        select.innerHTML = options;
-        // 如果當前值仍然存在於新的選項中，保持選中
-        if (types.includes(currentValue)) {
-          select.value = currentValue;
-        }
-      });
     }
 
     // 設定相關函數
@@ -2028,28 +2162,82 @@
     let newVersion = '';
     let lastCheckTime = localStorage.getItem('lastUpdateCheck') || 0;
     const CHECK_INTERVAL = 1000 * 60 * 60; // 每小時檢查一次（可調整）
+    let isCheckingForUpdates = false; // 新增旗標避免重複檢查
 
+    // 更新最後檢查時間顯示
+    function updateLastCheckTimeDisplay() {
+      const lastCheck = localStorage.getItem('lastUpdateCheck');
+      const lastCheckTimeElement = document.getElementById('lastCheckTime');
+      if (lastCheck) {
+        const date = new Date(parseInt(lastCheck));
+        lastCheckTimeElement.textContent = date.toLocaleString();
+      } else {
+        lastCheckTimeElement.textContent = '尚未檢查';
+      }
+    }
+
+    // 修改 checkForUpdates 函數，加入更新顯示時間
     async function checkForUpdates(silent = false) {
+      // 如果正在檢查，則直接返回
+      if (isCheckingForUpdates) {
+        console.log('Already checking for updates.');
+        if (!silent) showToast('正在檢查更新，請稍候...', 'info');
+        return;
+      }
+
+      isCheckingForUpdates = true; // 設定為正在檢查
+
       try {
-        // 檢查是否需要更新（避免過於頻繁檢查）
         const now = Date.now();
-        if (!silent && now - lastCheckTime < CHECK_INTERVAL) {
-          return;
+        const timeSinceLastCheck = now - lastCheckTime;
+
+        // 對於非靜默檢查 (手動點擊)，只有在距離上次手動檢查超過一個較短時間（例如 10 秒）才執行，避免誤觸連點
+        // 對於自動檢查 (靜默)，遵守 CHECK_INTERVAL
+        const manualCheckInterval = 10000; // 手動檢查間隔 10 秒
+
+        if (!silent && timeSinceLastCheck < manualCheckInterval) {
+            console.log(`Manual check too soon (${timeSinceLastCheck}ms since last check). Minimum interval: ${manualCheckInterval}ms`);
+            showToast(`請稍候再試。上次檢查於 ${Math.floor(timeSinceLastCheck / 1000)} 秒前。`, 'warning');
+            isCheckingForUpdates = false;
+            return;
+        } else if (silent && timeSinceLastCheck < CHECK_INTERVAL) {
+            console.log(`Silent check interval not met (${timeSinceLastCheck}ms since last check). Minimum interval: ${CHECK_INTERVAL}ms`);
+            isCheckingForUpdates = false;
+            return;
         }
-        
-        // 更新最後檢查時間
+
+        // 只有在非靜默模式下才顯示檢查中的提示
+        if (!silent) {
+            showToast('正在檢查更新...', 'info');
+        }
+
+        // 更新最後檢查時間（手動和自動檢查都會更新時間）
         lastCheckTime = now;
         localStorage.setItem('lastUpdateCheck', now);
+        updateLastCheckTimeDisplay(); // Update display immediately after setting new time
         
         // 獲取 manifest.json
-        const response = await fetch('./manifest.json?t=' + now); // 加入時間戳避免快取
+        // 加入時間戳避免瀏覽器快取
+        const response = await fetch('./manifest.json?t=' + now);
+        if (!response.ok) {
+            // 如果 manifest.json 無法訪問 (例如 404)，不視為更新錯誤，可能是 PWA 安裝在非根目錄
+            console.warn(`Failed to fetch manifest.json: status ${response.status}`);
+            if (!silent && response.status !== 404) {
+                 showToast(`檢查更新失敗：無法獲取 manifest.json (狀態碼: ${response.status})`, 'danger');
+            }
+             isCheckingForUpdates = false;
+            return; // 無法獲取 manifest，結束檢查
+        }
         const manifest = await response.json();
         
         // 獲取當前版本
-        const currentVersion = document.getElementById('currentVersion').textContent;
+        const currentVersionElement = document.getElementById('currentVersion');
+        const currentVersion = currentVersionElement ? currentVersionElement.textContent : '-';
+
+        console.log(`Current version: ${currentVersion}, Manifest version: ${manifest.version}`); // Debug line
         
         // 比較版本
-        if (manifest.version !== currentVersion) {
+        if (manifest.version && manifest.version !== currentVersion) {
           updateAvailable = true;
           newVersion = manifest.version;
           
@@ -2057,15 +2245,21 @@
           if (confirm(`發現新版本 ${newVersion}！是否要更新？`)) {
             // 如果用戶選擇更新，重新載入頁面
             window.location.reload();
+          } else if (!silent) {
+              showToast('已取消更新。', 'info');
           }
         } else if (!silent) {
-          alert('您目前使用的是最新版本！');
+          showToast('您目前使用的是最新版本！');
+        } else {
+             console.log('Auto check: already on latest version.'); // Debug line for silent checks
         }
       } catch (error) {
         console.error('檢查更新時發生錯誤：', error);
         if (!silent) {
-          alert('檢查更新時發生錯誤，請稍後再試。');
+          showToast('檢查更新時發生錯誤，請稍後再試。', 'danger');
         }
+      } finally {
+          isCheckingForUpdates = false; // 檢查結束
       }
     }
 
@@ -2113,6 +2307,100 @@
           console.error('Service Worker 註冊失敗：', error);
         }
       });
+    }
+
+    // 在頁面載入時更新顯示時間（確保顯示正確的上次檢查時間）
+    window.addEventListener('load', () => {
+      updateLastCheckTimeDisplay();
+    });
+
+    // 儲存設定函數 (需要您根據實際的設定項目來實現)
+    function saveSettings() {
+      try {
+        const autoBackupInterval = document.getElementById('autoBackupIntervalInput').value;
+        const enablePredictiveSorting = document.getElementById('enablePredictiveSorting').checked;
+        const enableDarkMode = document.getElementById('enableDarkMode').checked;
+        const enableDailyReport = document.getElementById('enableDailyReport').checked;
+        const enableMonthlyReport = document.getElementById('enableMonthlyReport').checked;
+
+        localStorage.setItem('autoBackupInterval', autoBackupInterval);
+        localStorage.setItem('enablePredictiveSorting', enablePredictiveSorting);
+        localStorage.setItem('enableDarkMode', enableDarkMode);
+        localStorage.setItem('enableDailyReport', enableDailyReport);
+        localStorage.setItem('enableMonthlyReport', enableMonthlyReport);
+
+        // 您可能還需要儲存商品類型列表
+        // ... 儲存商品類型列表的邏輯 ...
+        // 這裡需要調用一個函數來獲取並儲存商品類型列表
+        saveProductTypes(); // 假設您有一個 saveProductTypes 函數來處理商品類型的儲存
+
+        showToast('設定已儲存！');
+        // 儲存後關閉 Modal
+        const settingsModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+        if (settingsModal) {
+          settingsModal.hide();
+        }
+
+         // 應用深色模式設定
+        if (enableDarkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+
+      } catch (error) {
+        console.error('儲存設定時發生錯誤：', error);
+        showToast('儲存設定時發生錯誤，請稍後再試。', 'danger');
+      }
+    }
+
+    // 在 Modal 載入時讀取設定 (需要您根據實際的設定項目來實現)
+    document.getElementById('settingsModal').addEventListener('show.bs.modal', function () {
+      try {
+        const autoBackupInterval = localStorage.getItem('autoBackupInterval') || '1';
+        const enablePredictiveSorting = localStorage.getItem('enablePredictiveSorting') === 'true';
+        const enableDarkMode = localStorage.getItem('enableDarkMode') === 'true';
+        const enableDailyReport = localStorage.getItem('enableDailyReport') === 'true';
+        const enableMonthlyReport = localStorage.getItem('enableMonthlyReport') === 'true';
+
+        document.getElementById('autoBackupIntervalInput').value = autoBackupInterval;
+        document.getElementById('enablePredictiveSorting').checked = enablePredictiveSorting;
+        document.getElementById('enableDarkMode').checked = enableDarkMode;
+        document.getElementById('enableDailyReport').checked = enableDailyReport;
+        document.getElementById('enableMonthlyReport').checked = enableMonthlyReport;
+
+        // 載入商品類型列表
+         loadProductTypes();
+
+         // 應用深色模式設定
+        if (enableDarkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+
+      } catch (error) {
+        console.error('載入設定時發生錯誤：', error);
+        showToast('載入設定時發生錯誤，請稍後再試。', 'danger');
+      }
+    });
+
+    // 在頁面載入時應用深色模式設定並更新商品類型下拉選單
+    window.addEventListener('load', () => {
+      const enableDarkMode = localStorage.getItem('enableDarkMode') === 'true';
+      if (enableDarkMode) {
+        document.body.classList.add('dark-mode');
+      }
+      updateLastCheckTimeDisplay(); // 保證上次檢查時間顯示正確
+      updateProductTypeSelects(); // 頁面載入時更新商品類型下拉選單
+    });
+
+    // 隱藏設定 Modal 的函數
+    function hideSettingsModal() {
+      const settingsModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+      if (settingsModal) {
+        settingsModal.hide();
+      }
     }
   </script>
 </body>
