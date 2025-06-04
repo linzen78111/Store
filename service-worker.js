@@ -1,12 +1,11 @@
-const CACHE_NAME = 'cups-manager-cache-v1.0.2';
+const CACHE_NAME = 'cups-manager-cache-v1.0.3';
 
 const precache_list = [
-  './',
-  './index.html',
-  './store.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
+  '/Store/',
+  '/Store/store.html',
+  '/Store/manifest.json',
+  '/Store/icon-192.png',
+  '/Store/icon-512.png',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js'
 ];
