@@ -605,34 +605,68 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label for="autoBackupIntervalInput" class="form-label">自動備份間隔 (小時)</label>
-            <input type="number" id="autoBackupIntervalInput" class="form-control" value="1" min="1" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">商品類型管理</label>
-            <div class="input-group mb-2">
-              <input type="text" id="newProductType" class="form-control" placeholder="輸入新商品類型">
-              <button class="btn btn-outline-primary" onclick="addProductType()">新增</button>
+          <div class="accordion" id="settingsAccordion">
+            <!-- 基本設定 -->
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#basicSettings">
+                  基本設定
+                </button>
+              </h2>
+              <div id="basicSettings" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
+                <div class="accordion-body">
+                  <div class="mb-3">
+                    <label for="autoBackupIntervalInput" class="form-label">自動備份間隔 (小時)</label>
+                    <input type="number" id="autoBackupIntervalInput" class="form-control" value="1" min="1" />
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="enablePredictiveSorting">
+                    <label class="form-check-label" for="enablePredictiveSorting">啟用預測排序</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="enableDarkMode">
+                    <label class="form-check-label" for="enableDarkMode">啟用深色模式</label>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div id="productTypeList" class="list-group">
-              <!-- 商品類型列表將在這裡動態生成 -->
+
+            <!-- 商品類型管理 -->
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#productTypeSettings">
+                  商品類型管理
+                </button>
+              </h2>
+              <div id="productTypeSettings" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+                <div class="accordion-body">
+                  <div class="input-group mb-2">
+                    <input type="text" id="newProductType" class="form-control" placeholder="輸入新商品類型">
+                    <button class="btn btn-outline-primary" onclick="addProductType()">新增</button>
+                  </div>
+                  <div id="productTypeList" class="list-group">
+                    <!-- 商品類型列表將在這裡動態生成 -->
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">報表設定</label>
-            <div class="d-flex gap-2 mb-2">
-              <button class="btn btn-outline-primary" onclick="showDailyReport()">📊 查看日結報表</button>
-              <button class="btn btn-outline-primary" onclick="showMonthlyReport()">📈 查看月結報表</button>
+
+            <!-- 報表設定 -->
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#reportSettings">
+                  報表設定
+                </button>
+              </h2>
+              <div id="reportSettings" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+                <div class="accordion-body">
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" onclick="showDailyReport()">📊 查看日結報表</button>
+                    <button class="btn btn-outline-primary" onclick="showMonthlyReport()">📈 查看月結報表</button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="enablePredictiveSorting">
-            <label class="form-check-label" for="enablePredictiveSorting">啟用預測排序</label>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="enableDarkMode">
-            <label class="form-check-label" for="enableDarkMode">啟用深色模式</label>
           </div>
         </div>
         <div class="modal-footer">
@@ -674,9 +708,10 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label for="dailyReportDate" class="form-label">選擇日期</label>
+          <div class="mb-3 d-flex gap-2 align-items-center">
+            <label for="dailyReportDate" class="form-label mb-0">選擇日期</label>
             <input type="date" id="dailyReportDate" class="form-control" onchange="updateDailyReport()">
+            <button class="btn btn-outline-primary" onclick="showTodayReport()">今天</button>
           </div>
           <div id="dailyReportContent"></div>
         </div>
@@ -693,9 +728,10 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label for="monthlyReportMonth" class="form-label">選擇月份</label>
+          <div class="mb-3 d-flex gap-2 align-items-center">
+            <label for="monthlyReportMonth" class="form-label mb-0">選擇月份</label>
             <input type="month" id="monthlyReportMonth" class="form-control" onchange="updateMonthlyReport()">
+            <button class="btn btn-outline-primary" onclick="showCurrentMonthReport()">本月</button>
           </div>
           <div id="monthlyReportContent"></div>
         </div>
@@ -752,7 +788,19 @@
       
       document.getElementById('totalCustomers').textContent = customers.length;
       document.getElementById('totalCups').textContent = totalCups;
-      document.getElementById('lastUpdate').textContent = new Date().toLocaleString('zh-TW');
+      const now = new Date();
+      // 使用本地時間
+      const timeStr = now.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Taipei'
+      }).replace(/\//g, '/');
+      document.getElementById('lastUpdate').textContent = timeStr;
     }
 
     // 搜尋相關函數
@@ -845,7 +893,19 @@
       const data = getData();
       if (!data[name]) data[name] = { count: 0, log: [], createdAt: new Date().toISOString() };
       data[name].count += quantity;
-      data[name].log.push(`+${quantity} 杯（${new Date().toLocaleString()}）`);
+      const now = new Date();
+      // 使用本地時間
+      const timeStr = now.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Taipei'
+      }).replace(/\//g, '/');
+      data[name].log.push(`+${quantity} 杯（${timeStr}）`);
       saveData(data);
       showToast(`已為 ${name} 增加 ${quantity} 杯`);
       render();
@@ -858,7 +918,19 @@
         return;
       }
       data[name].count--;
-      data[name].log.push(`-1 杯 ${data[name].productType || '未指定'}（${new Date().toLocaleString()}）`);
+      const now = new Date();
+      // 使用本地時間
+      const timeStr = now.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Taipei'
+      }).replace(/\//g, '/');
+      data[name].log.push(`-1 杯 ${data[name].productType || '未指定'}（${timeStr}）`);
       saveData(data);
       showToast(`已為 ${name} 扣一杯`);
       render();
@@ -992,47 +1064,58 @@
 
     // 預測相關函數
     function calculatePredictedNextVisit(customerLog) {
-      // 過濾出提杯記錄 (-1 杯)
-      const removeCupLogs = customerLog.filter(log => log.startsWith('-1 杯'));
+        // 1. 只取提杯記錄
+        const removeCupLogs = (customerLog || []).filter(log => {
+            if (typeof log === 'string') {
+                return log.startsWith('-1 杯');
+            } else if (typeof log === 'object' && log !== null && log.type === 'remove') {
+                return true;
+            }
+            return false;
+        });
 
-      // 如果記錄少於兩筆，無法計算間隔，返回 null
-      if (removeCupLogs.length < 2) {
-        return null;
-      }
+        if (removeCupLogs.length < 2) return null;
 
-      // 解析日期並排序 (從舊到新)
-      const dates = removeCupLogs.map(log => {
-        const dateString = log.substring(log.indexOf('（') + 1, log.indexOf('）'));
-        // 嘗試解析多種可能的日期格式
-        const date = new Date(dateString);
-        // 檢查日期是否有效
-        return isNaN(date.getTime()) ? null : date;
-      }).filter(date => date !== null).sort((a, b) => a.getTime() - b.getTime());
+        // 解析日期並排序 (從舊到新)
+        const dates = removeCupLogs.map(log => {
+            let dateString;
+            if (typeof log === 'string') {
+                const match = log.match(/（(.*?)）/);
+                dateString = match ? match[1] : null;
+            } else if (typeof log === 'object' && log !== null && log.timestamp) {
+                dateString = log.timestamp;
+            }
+            
+            if (!dateString) return null;
+            
+            const date = new Date(dateString);
+            return isNaN(date.getTime()) ? null : date;
+        }).filter(date => date !== null).sort((a, b) => a.getTime() - b.getTime());
 
-      // 如果解析出的有效日期少於兩筆，返回 null
-      if (dates.length < 2) {
-          return null;
-      }
+        // 如果解析出的有效日期少於兩筆，返回 null
+        if (dates.length < 2) {
+            return null;
+        }
 
-      // 計算時間間隔 (毫秒)
-      const intervals = [];
-      for (let i = 1; i < dates.length; i++) {
-        intervals.push(dates[i].getTime() - dates[i - 1].getTime());
-      }
+        // 計算時間間隔 (毫秒)
+        const intervals = [];
+        for (let i = 1; i < dates.length; i++) {
+            intervals.push(dates[i].getTime() - dates[i - 1].getTime());
+        }
 
-      // 如果沒有有效的間隔，返回 null
-      if (intervals.length === 0) {
-          return null;
-      }
+        // 如果沒有有效的間隔，返回 null
+        if (intervals.length === 0) {
+            return null;
+        }
 
-      // 計算平均間隔 (毫秒)
-      const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+        // 計算平均間隔 (毫秒)
+        const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
 
-      // 預測下一次來訪日期 = 最後一次提杯日期 + 平均間隔
-      const lastVisitDate = dates[dates.length - 1];
-      const predictedDate = new Date(lastVisitDate.getTime() + averageInterval);
+        // 預測下一次來訪日期 = 最後一次提杯日期 + 平均間隔
+        const lastVisitDate = dates[dates.length - 1];
+        const predictedDate = new Date(lastVisitDate.getTime() + averageInterval);
 
-      return predictedDate;
+        return predictedDate;
     }
 
     // 渲染函數
@@ -1149,10 +1232,21 @@
       const data = getData();
       if (!data[name]) data[name] = { count: 0, log: [], createdAt: new Date().toISOString() };
       
-      // 更新商品類型
       data[name].productType = productType;
       data[name].count += cupsToAdd;
-      data[name].log.push(`+${cupsToAdd} 杯 ${productType}（${new Date().toLocaleString()}）`);
+      const now = new Date();
+      // 使用本地時間
+      const timeStr = now.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Taipei'
+      }).replace(/\//g, '/');
+      data[name].log.push(`+${cupsToAdd} 杯 ${productType}（${timeStr}）`);
       
       saveData(data);
       showToast(`已為 ${name} 增加 ${cupsToAdd} 杯 ${productType}`);
@@ -1380,18 +1474,48 @@
 
     // 新增報表相關函數
     function showDailyReport() {
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('dailyReportDate').value = today;
+      const today = new Date();
+      // 使用本地時間
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      document.getElementById('dailyReportDate').value = formattedDate;
       updateDailyReport();
       new bootstrap.Modal(document.getElementById('dailyReportModal')).show();
     }
 
     function showMonthlyReport() {
       const today = new Date();
-      const yearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+      // 使用本地時間
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const yearMonth = `${year}-${month}`;
       document.getElementById('monthlyReportMonth').value = yearMonth;
       updateMonthlyReport();
       new bootstrap.Modal(document.getElementById('monthlyReportModal')).show();
+    }
+
+    function parseChineseDateTime(timeStr) {
+      if (!timeStr) return new Date('invalid');
+      
+      // 嘗試解析標準格式 (YYYY/MM/DD HH:mm:ss)
+      const standardMatch = timeStr.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})/);
+      if (standardMatch) {
+        const [_, year, month, day, hour, minute, second] = standardMatch;
+        return new Date(year, month - 1, day, hour, minute, second);
+      }
+      
+      // 嘗試解析中文格式 (YYYY年MM月DD日 HH:mm:ss)
+      const chineseMatch = timeStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日\s+(\d{2}):(\d{2}):(\d{2})/);
+      if (chineseMatch) {
+        const [_, year, month, day, hour, minute, second] = chineseMatch;
+        return new Date(year, month - 1, day, hour, minute, second);
+      }
+      
+      // 嘗試標準的 Date 解析
+      const date = new Date(timeStr);
+      return isNaN(date.getTime()) ? new Date('invalid') : date;
     }
 
     function updateDailyReport() {
@@ -1403,15 +1527,56 @@
       const dailyRecords = [];
       Object.entries(data).forEach(([name, customer]) => {
         customer.log.forEach(log => {
-          const logDate = new Date(log.match(/（(.*?)）/)[1]);
-          if (logDate.toDateString() === reportDate.toDateString()) {
-            dailyRecords.push({
-              name,
-              log,
-              productType: customer.productType || '未指定',
-              isAdd: log.startsWith('+'),
-              count: parseInt(log.match(/\d+/)[0])
-            });
+          let logDate, count, isAdd, productType;
+          
+          try {
+            if (typeof log === 'string') {
+              const timeMatch = log.match(/（(.*?)）/);
+              if (!timeMatch) return;
+              
+              const timeStr = timeMatch[1];
+              logDate = parseChineseDateTime(timeStr);
+              
+              if (isNaN(logDate.getTime())) {
+                console.warn('無法解析時間:', timeStr);
+                return;
+              }
+
+              const countMatch = log.match(/([+-]\d+)/);
+              if (!countMatch) return;
+              
+              isAdd = log.startsWith('+');
+              count = Math.abs(parseInt(countMatch[1]));
+              productType = log.includes('杯') ? log.split('杯')[1].trim().split('（')[0].trim() : '未指定';
+            } else if (typeof log === 'object' && log !== null) {
+              if (!log.timestamp) return;
+              
+              logDate = parseChineseDateTime(log.timestamp);
+              if (isNaN(logDate.getTime())) {
+                console.warn('無法解析時間戳記:', log.timestamp);
+                return;
+              }
+              
+              isAdd = log.type === 'add';
+              count = Math.abs(log.count || 0);
+              productType = log.productType || '未指定';
+            } else {
+              return;
+            }
+
+            // 檢查日期是否匹配
+            if (logDate.toDateString() === reportDate.toDateString()) {
+              dailyRecords.push({
+                name,
+                log: typeof log === 'string' ? log : `${isAdd ? '+' : '-'}${count} 杯 ${productType}（${log.timestamp}）`,
+                productType,
+                isAdd,
+                count,
+                timestamp: logDate
+              });
+            }
+          } catch (error) {
+            console.error('處理日誌記錄時出錯:', error, log);
           }
         });
       });
@@ -1434,17 +1599,18 @@
       `;
 
       // 按時間排序
-      dailyRecords.sort((a, b) => {
-        const timeA = new Date(a.log.match(/（(.*?)）/)[1]);
-        const timeB = new Date(b.log.match(/（(.*?)）/)[1]);
-        return timeA - timeB;
-      });
+      dailyRecords.sort((a, b) => a.timestamp - b.timestamp);
 
       let totalAdd = 0;
       let totalRemove = 0;
 
       dailyRecords.forEach(record => {
-        const time = record.log.match(/（(.*?)）/)[1];
+        const time = record.timestamp.toLocaleTimeString('zh-TW', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false 
+        });
         content += `
           <tr>
             <td>${time}</td>
@@ -1496,16 +1662,56 @@
       const monthlyRecords = [];
       Object.entries(data).forEach(([name, customer]) => {
         customer.log.forEach(log => {
-          const logDate = new Date(log.match(/（(.*?)）/)[1]);
-          if (logDate.getFullYear() === year && logDate.getMonth() + 1 === month) {
-            monthlyRecords.push({
-              name,
-              log,
-              productType: customer.productType || '未指定',
-              isAdd: log.startsWith('+'),
-              count: parseInt(log.match(/\d+/)[0]),
-              date: logDate
-            });
+          let logDate, count, isAdd, productType;
+          
+          try {
+            if (typeof log === 'string') {
+              const timeMatch = log.match(/（(.*?)）/);
+              if (!timeMatch) return;
+              
+              const timeStr = timeMatch[1];
+              logDate = parseChineseDateTime(timeStr);
+              
+              if (isNaN(logDate.getTime())) {
+                console.warn('無法解析時間:', timeStr);
+                return;
+              }
+
+              const countMatch = log.match(/([+-]\d+)/);
+              if (!countMatch) return;
+              
+              isAdd = log.startsWith('+');
+              count = Math.abs(parseInt(countMatch[1]));
+              productType = log.includes('杯') ? log.split('杯')[1].trim().split('（')[0].trim() : '未指定';
+            } else if (typeof log === 'object' && log !== null) {
+              if (!log.timestamp) return;
+              
+              logDate = parseChineseDateTime(log.timestamp);
+              if (isNaN(logDate.getTime())) {
+                console.warn('無法解析時間戳記:', log.timestamp);
+                return;
+              }
+              
+              isAdd = log.type === 'add';
+              count = Math.abs(log.count || 0);
+              productType = log.productType || '未指定';
+            } else {
+              return;
+            }
+
+            // 檢查日期是否在指定月份
+            if (logDate.getFullYear() === year && logDate.getMonth() + 1 === month) {
+              monthlyRecords.push({
+                name,
+                log: typeof log === 'string' ? log : `${isAdd ? '+' : '-'}${count} 杯 ${productType}（${log.timestamp}）`,
+                productType,
+                isAdd,
+                count,
+                date: logDate
+              });
+            }
+          } catch (error) {
+            console.error('處理日誌記錄時出錯:', error, log);
           }
         });
       });
@@ -1601,8 +1807,6 @@
       });
 
       content += `
-            </tbody>
-            <tfoot>
               <tr class="table-primary">
                 <td colspan="2"><strong>月結統計</strong></td>
                 <td>${totalAdd}</td>
@@ -1617,8 +1821,154 @@
       document.getElementById('monthlyReportContent').innerHTML = content;
     }
 
-    // 初始化
+    // 新增轉換舊資料格式的函數
+    function convertOldDataFormat() {
+      const data = getData();
+      let hasChanges = false;
+
+      Object.entries(data).forEach(([name, customer]) => {
+        if (!customer.log) return;
+
+        customer.log = customer.log.map(log => {
+          if (typeof log !== 'string') return log;
+
+          try {
+            // 檢查是否包含上午/下午
+            if (log.includes('上午') || log.includes('下午')) {
+              hasChanges = true;
+              const timeMatch = log.match(/（(.*?)）/);
+              if (!timeMatch) return log;
+
+              const oldTimeStr = timeMatch[1];
+              console.log('處理時間字串:', oldTimeStr); // 調試信息
+
+              const [datePart, timePart] = oldTimeStr.split(' ');
+              if (!datePart || !timePart) {
+                console.warn('無法分割日期和時間:', oldTimeStr);
+                return log;
+              }
+
+              // 解析日期部分
+              const [year, month, day] = datePart.split('/').map(num => parseInt(num, 10));
+              if (isNaN(year) || isNaN(month) || isNaN(day)) {
+                console.warn('日期解析失敗:', datePart);
+                return log;
+              }
+
+              // 解析時間部分
+              const [time, period] = timePart.split(' ');
+              if (!time) {
+                console.warn('無法解析時間部分:', timePart);
+                return log;
+              }
+
+              let [hour, minute, second] = time.split(':').map(num => parseInt(num, 10));
+              if (isNaN(hour) || isNaN(minute) || isNaN(second)) {
+                console.warn('時間解析失敗:', time);
+                return log;
+              }
+
+              // 轉換上午/下午為24小時制
+              if (period === '下午' && hour !== 12) {
+                hour += 12;
+              } else if (period === '上午' && hour === 12) {
+                hour = 0;
+              }
+
+              // 確保所有數字都是有效的
+              if (isNaN(hour) || isNaN(minute) || isNaN(second)) {
+                console.warn('轉換後時間無效:', { hour, minute, second });
+                return log;
+              }
+
+              // 格式化新的時間字串
+              const newTimeStr = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`;
+              console.log('轉換後時間:', newTimeStr); // 調試信息
+              return log.replace(timeMatch[0], `（${newTimeStr}）`);
+            }
+
+            // 檢查是否為中文日期格式 (YYYY年MM月DD日)
+            if (log.includes('年')) {
+              hasChanges = true;
+              const timeMatch = log.match(/（(.*?)）/);
+              if (!timeMatch) return log;
+
+              const oldTimeStr = timeMatch[1];
+              console.log('處理中文時間字串:', oldTimeStr); // 調試信息
+
+              const [datePart, timePart] = oldTimeStr.split(' ');
+              if (!datePart || !timePart) {
+                console.warn('無法分割中文日期和時間:', oldTimeStr);
+                return log;
+              }
+
+              // 解析中文日期
+              const year = parseInt(datePart.match(/(\d{4})年/)?.[1], 10);
+              const month = parseInt(datePart.match(/(\d{1,2})月/)?.[1], 10);
+              const day = parseInt(datePart.match(/(\d{1,2})日/)?.[1], 10);
+
+              if (isNaN(year) || isNaN(month) || isNaN(day)) {
+                console.warn('中文日期解析失敗:', datePart);
+                return log;
+              }
+
+              // 解析時間部分
+              let [hour, minute, second] = timePart.split(':').map(num => parseInt(num, 10));
+              if (isNaN(hour) || isNaN(minute) || isNaN(second)) {
+                console.warn('中文時間解析失敗:', timePart);
+                return log;
+              }
+
+              // 格式化新的時間字串
+              const newTimeStr = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`;
+              console.log('轉換後中文時間:', newTimeStr); // 調試信息
+              return log.replace(timeMatch[0], `（${newTimeStr}）`);
+            }
+
+            // 檢查是否為標準格式但時間無效
+            const timeMatch = log.match(/（(.*?)）/);
+            if (timeMatch) {
+              const timeStr = timeMatch[1];
+              if (timeStr.includes('NaN')) {
+                console.warn('發現無效時間格式:', timeStr);
+                // 嘗試修復無效的時間
+                const [datePart, timePart] = timeStr.split(' ');
+                if (datePart && timePart) {
+                  const [year, month, day] = datePart.split('/').map(num => parseInt(num, 10));
+                  const [hour, minute, second] = timePart.split(':').map(num => {
+                    const parsed = parseInt(num, 10);
+                    return isNaN(parsed) ? 0 : parsed;
+                  });
+                  
+                  if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+                    const newTimeStr = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`;
+                    console.log('修復無效時間:', newTimeStr);
+                    hasChanges = true;
+                    return log.replace(timeMatch[0], `（${newTimeStr}）`);
+                  }
+                }
+              }
+            }
+
+            return log;
+          } catch (error) {
+            console.error('處理日誌時出錯:', error, log);
+            return log;
+          }
+        });
+      });
+
+      if (hasChanges) {
+        saveData(data);
+        console.log('已將舊的資料格式轉換為24小時制');
+      }
+    }
+
+    // 修改初始化部分
     document.addEventListener('DOMContentLoaded', () => {
+      // 轉換舊的資料格式
+      convertOldDataFormat();
+
       // 載入並應用深色模式設定
       const darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true';
       applyDarkMode(darkModeEnabled);
@@ -1633,6 +1983,29 @@
       // 初始化時根據設定渲染
       render();
     });
+
+    // 新增快速跳轉到今天的函數
+    function showTodayReport() {
+      const today = new Date();
+      // 使用本地時間
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      document.getElementById('dailyReportDate').value = formattedDate;
+      updateDailyReport();
+    }
+
+    // 新增快速跳轉到當月的函數
+    function showCurrentMonthReport() {
+      const today = new Date();
+      // 使用本地時間
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const yearMonth = `${year}-${month}`;
+      document.getElementById('monthlyReportMonth').value = yearMonth;
+      updateMonthlyReport();
+    }
   </script>
 </body>
 </html>
