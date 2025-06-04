@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XPOS 銷售輸入系統</title>
+  <script type="module">
+    // Firebase 套件載入
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBech4CYnhsbPwg_EFTR3xD8lf29kmf0Bg",
+      authDomain: "xposc-b9c0c.firebaseapp.com",
+      projectId: "xposc-b9c0c",
+      storageBucket: "xposc-b9c0c.appspot.com",
+      messagingSenderId: "897665498645",
+      appId: "1:897665498645:web:017b0aa537cb7f3c54581c",
+      measurementId: "G-54VWVC9B4D"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function submitSale() {
+      const store = document.getElementById("store").value;
+      const product = document.getElementById("product").value;
+      const quantity = document.getElementById("quantity").value;
+      const date = document.getElementById("date").value;
+
+      if (!store || !product || !quantity || !date) {
+        alert("請填寫所有欄位");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "stores", store, "sales"), {
+          productId: product,
+          quantitySold: parseInt(quantity),
+          date: date
+        });
+        alert("✅ 資料已送出！");
+      } catch (e) {
+        console.error("❌ 錯誤：", e);
+        alert("送出失敗，請稍後再試");
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      padding: 1rem;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label, input {
+      display: block;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>XPOS 銷售輸入</h1>
+  <form onsubmit="submitSale(); return false;">
+    <label for="store">🏪 門市代碼</label>
+    <input id="store" type="text" placeholder="例如：store001" required />
+
+    <label for="product">📦 商品代碼</label>
+    <input id="product" type="text" placeholder="例如：P123456789" required />
+
+    <label for="quantity">🔢 銷售數量</label>
+    <input id="quantity" type="number" min="0" required />
+
+    <label for="date">🗓️ 日期</label>
+    <input id="date" type="date" required />
+
+    <button type="submit">✅ 送出資料</button>
+  </form>
+</body>
+</html>
