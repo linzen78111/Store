@@ -1,7 +1,8 @@
-const CACHE_NAME = 'cups-manager-cache-v1.0.3';
+const CACHE_NAME = 'cups-manager-cache-v1.0.4';
 
 const precache_list = [
   '/Store/',
+  '/Store/index.html',
   '/Store/store.html',
   '/Store/manifest.json',
   '/Store/icon-192.png',
