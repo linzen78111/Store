@@ -24,6 +24,11 @@
       flex-direction: column;
   }
 
+  /* 確保更新 Modal 顯示在最上層 */
+  #updateModal {
+    z-index: 1060 !important;
+  }
+
   @keyframes gradientShift {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -2269,9 +2274,17 @@
           if (currentVersionModalElement) currentVersionModalElement.textContent = currentVersion;
           if (newVersionModalElement) newVersionModalElement.textContent = newVersion;
 
+          // 更新當前版本號顯示
+          if (currentVersionElement) {
+            currentVersionElement.textContent = manifest.version;
+          }
+
           // 顯示更新提示 Modal
           const updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
           updateModal.show();
+
+          // 儲存新版本號到 localStorage
+          localStorage.setItem('appVersion', manifest.version);
 
         } else if (!silent) {
           showToast('您目前使用的是最新版本！');
@@ -2501,6 +2514,7 @@
     // 應用更新（使用者點擊提示按鈕時觸發）
     function applyUpdate() {
         console.log('applyUpdate called.');
+        
         // 隱藏 Modal
         const updateModalElement = document.getElementById('updateModal');
         const updateModal = bootstrap.Modal.getInstance(updateModalElement);
@@ -2511,18 +2525,33 @@
             console.log('Update modal instance not found.');
         }
 
+        // 強制清除快取並重新載入
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (let name of names) {
+                    caches.delete(name);
+                }
+            });
+        }
+
         if (newServiceWorker) {
             console.log('Sending SKIP_WAITING message to newServiceWorker:', newServiceWorker);
             // 通知 Service Worker 跳過等待
             newServiceWorker.postMessage({ type: 'SKIP_WAITING' });
-            // controllerchange 事件監聽器會處理頁面重新載入
-             console.log('SKIP_WAITING message sent, waiting for controllerchange...');
-        } else {
-            console.log('newServiceWorker is null. No waiting Service Worker found to skip waiting. Reloading directly.');
-            // 如果不知為何沒有 newServiceWorker，直接重新載入頁面
-             window.location.reload();
         }
+
+        // 強制重新載入頁面
+        window.location.reload(true);
     }
+
+    // 在頁面載入時檢查版本號
+    window.addEventListener('load', () => {
+        const savedVersion = localStorage.getItem('appVersion');
+        const currentVersionElement = document.getElementById('currentVersion');
+        if (savedVersion && currentVersionElement) {
+            currentVersionElement.textContent = savedVersion;
+        }
+    });
   </script>
 </body>
 </html>
