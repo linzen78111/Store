@@ -7,19 +7,19 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     /* 字體與背景 */
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1, #fbc2eb);
-      background-size: 1000% 1000%;
-      animation: gradientShift 30s ease infinite;
-      transition: background 0.5s ease;
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1, #fbc2eb);
+    background-size: 1000% 1000%;
+    animation: gradientShift 30s ease infinite;
+    transition: background 0.5s ease;
       color: #333;
       /* 使用 Flexbox 佈局 */
       display: flex;
       flex-direction: column;
-    }
+  }
 
-    @keyframes gradientShift {
+  @keyframes gradientShift {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
@@ -382,7 +382,7 @@
     }
      .dark-mode .note-badge:hover {
         background-color: #6c757d; /* 調整備註徽章 hover 顏色 */
-     }
+    }
   </style>
 </head>
 <body class="container py-4">
@@ -405,21 +405,21 @@
 
   <!-- 將搜尋、按鈕和列表包裝在一個新的 div 中 -->
   <div class="main-content">
-    <!-- 搜尋欄位 -->
-    <div class="mb-3">
-      <input id="searchInput" class="form-control" placeholder="🔍 搜尋顧客名稱" oninput="render()" />
-    </div>
+  <!-- 搜尋欄位 -->
+  <div class="mb-3">
+    <input id="searchInput" class="form-control" placeholder="🔍 搜尋顧客名稱" oninput="render()" />
+  </div>
 
-    <!-- 按鈕列 -->
-    <div class="mb-3 d-flex flex-wrap gap-2 btn-group">
-      <button class="btn btn-info" onclick="backup()">💾 手動備份</button>
-      <input type="file" id="importInput" accept=".json" style="display:none" onchange="importBackup(event)" />
-      <button class="btn btn-warning" onclick="document.getElementById('importInput').click()">📥 匯入備份</button>
+  <!-- 按鈕列 -->
+  <div class="mb-3 d-flex flex-wrap gap-2 btn-group">
+    <button class="btn btn-info" onclick="backup()">💾 手動備份</button>
+    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importBackup(event)" />
+    <button class="btn btn-warning" onclick="document.getElementById('importInput').click()">📥 匯入備份</button>
       <button class="btn btn-secondary" onclick="showSettingsModal()">⚙️ 設定</button>
-    </div>
+  </div>
 
-    <!-- 顧客列表 -->
-    <div id="customerList" class="vstack gap-3"></div>
+  <!-- 顧客列表 -->
+  <div id="customerList" class="vstack gap-3"></div>
   </div>
 
   <!-- Toast 提示容器 -->
@@ -505,6 +505,16 @@
             <input type="text" id="newCustomerName" class="form-control" placeholder="請輸入顧客名稱" />
           </div>
           <div class="mb-3">
+            <label for="newCustomerProductType" class="form-label">商品類型</label>
+            <select id="newCustomerProductType" class="form-select">
+              <option value="鐵觀音">鐵觀音</option>
+              <option value="烏龍茶">烏龍茶</option>
+              <option value="紅茶">紅茶</option>
+              <option value="綠茶">綠茶</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="mb-3">
             <label for="newCustomerNote" class="form-label">備註（選填）</label>
             <textarea id="newCustomerNote" class="form-control" placeholder="可以輸入顧客的特別備註" rows="2"></textarea>
           </div>
@@ -567,6 +577,16 @@
             <label for="cupsToAddInput" class="form-label">要增加的杯數</label>
             <input type="number" id="cupsToAddInput" class="form-control" value="1" min="1" />
           </div>
+          <div class="mb-3">
+            <label for="cupsProductType" class="form-label">商品類型</label>
+            <select id="cupsProductType" class="form-select">
+              <option value="鐵觀音">鐵觀音</option>
+              <option value="烏龍茶">烏龍茶</option>
+              <option value="紅茶">紅茶</option>
+              <option value="綠茶">綠茶</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
@@ -589,6 +609,23 @@
             <label for="autoBackupIntervalInput" class="form-label">自動備份間隔 (小時)</label>
             <input type="number" id="autoBackupIntervalInput" class="form-control" value="1" min="1" />
           </div>
+          <div class="mb-3">
+            <label class="form-label">商品類型管理</label>
+            <div class="input-group mb-2">
+              <input type="text" id="newProductType" class="form-control" placeholder="輸入新商品類型">
+              <button class="btn btn-outline-primary" onclick="addProductType()">新增</button>
+            </div>
+            <div id="productTypeList" class="list-group">
+              <!-- 商品類型列表將在這裡動態生成 -->
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">報表設定</label>
+            <div class="d-flex gap-2 mb-2">
+              <button class="btn btn-outline-primary" onclick="showDailyReport()">📊 查看日結報表</button>
+              <button class="btn btn-outline-primary" onclick="showMonthlyReport()">📈 查看月結報表</button>
+            </div>
+          </div>
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="enablePredictiveSorting">
             <label class="form-check-label" for="enablePredictiveSorting">啟用預測排序</label>
@@ -601,6 +638,66 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
           <button type="button" class="btn btn-primary" onclick="saveAutoBackupSetting()">儲存設定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 編輯商品類型 Modal -->
+  <div id="editProductTypeModal" class="modal fade" tabindex="-1" aria-labelledby="editProductTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProductTypeModalLabel">編輯商品類型</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="editProductTypeInput" class="form-label">商品類型名稱</label>
+            <input type="text" id="editProductTypeInput" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" onclick="saveProductTypeEdit()">儲存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 日結報表 Modal -->
+  <div id="dailyReportModal" class="modal fade" tabindex="-1" aria-labelledby="dailyReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dailyReportModalLabel">📊 日結報表</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="dailyReportDate" class="form-label">選擇日期</label>
+            <input type="date" id="dailyReportDate" class="form-control" onchange="updateDailyReport()">
+          </div>
+          <div id="dailyReportContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 月結報表 Modal -->
+  <div id="monthlyReportModal" class="modal fade" tabindex="-1" aria-labelledby="monthlyReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="monthlyReportModalLabel">📈 月結報表</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="monthlyReportMonth" class="form-label">選擇月份</label>
+            <input type="month" id="monthlyReportMonth" class="form-control" onchange="updateMonthlyReport()">
+          </div>
+          <div id="monthlyReportContent"></div>
         </div>
       </div>
     </div>
@@ -663,7 +760,7 @@
       const data = getData();
       const list = document.getElementById('quickSearchList');
       list.innerHTML = '';
-      
+
       Object.keys(data).sort().forEach(name => {
         const item = document.createElement('button');
         item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
@@ -707,6 +804,7 @@
     function showAddCustomerModal() {
       const modal = new bootstrap.Modal(document.getElementById('addCustomerModal'));
       document.getElementById('newCustomerName').value = '';
+      document.getElementById('newCustomerProductType').value = '鐵觀音';
       document.getElementById('newCustomerNote').value = '';
       modal.show();
     }
@@ -714,12 +812,13 @@
     function addNewCustomer() {
       const name = document.getElementById('newCustomerName').value.trim();
       const note = document.getElementById('newCustomerNote').value.trim();
+      const productType = document.getElementById('newCustomerProductType').value;
       
       if (!name) {
         showToast('請輸入顧客名稱', 'danger');
         return;
       }
-      
+
       const data = getData();
       if (data[name]) {
         showToast('此顧客已存在', 'danger');
@@ -730,6 +829,7 @@
         count: 0, 
         log: [],
         note: note,
+        productType: productType,
         createdAt: new Date().toISOString()
       };
       saveData(data);
@@ -758,7 +858,7 @@
         return;
       }
       data[name].count--;
-      data[name].log.push(`-1 杯（${new Date().toLocaleString()}）`);
+      data[name].log.push(`-1 杯 ${data[name].productType || '未指定'}（${new Date().toLocaleString()}）`);
       saveData(data);
       showToast(`已為 ${name} 扣一杯`);
       render();
@@ -778,11 +878,11 @@
 
       // 新增新的事件監聽器
       newConfirmActionBtn.addEventListener('click', () => {
-        const data = getData();
-        delete data[name];
-        saveData(data);
+      const data = getData();
+      delete data[name];
+      saveData(data);
         showToast(`已移除顧客 ${name}`);
-        render();
+      render();
         bootstrap.Modal.getInstance(confirmModalElement).hide();
       });
 
@@ -812,18 +912,20 @@
         hour12: false
       }).replace(/[/:]/g, '-').replace(/\s/g, '_');
 
-      // 讀取當前設定
+      // 讀取當前所有設定
       const currentSettings = {
         autoBackupInterval: localStorage.getItem('autoBackupInterval') || '1',
         predictiveSortingEnabled: localStorage.getItem('predictiveSortingEnabled') || 'false',
-        darkModeEnabled: localStorage.getItem('darkModeEnabled') || 'false'
+        darkModeEnabled: localStorage.getItem('darkModeEnabled') || 'false',
+        enableDailyReport: localStorage.getItem('enableDailyReport') || 'false',
+        enableMonthlyReport: localStorage.getItem('enableMonthlyReport') || 'false'
       };
 
       const backupData = {
-        version: '1.0',
+        version: '1.1', // 更新版本號
         exportDate: now.toISOString(),
         data: data,
-        settings: currentSettings, // 包含設定
+        settings: currentSettings,
         totalCustomers: Object.keys(data).length,
         totalCups: Object.values(data).reduce((sum, customer) => sum + customer.count, 0)
       };
@@ -865,6 +967,8 @@
             localStorage.setItem('autoBackupInterval', imported.settings.autoBackupInterval || '1');
             localStorage.setItem('predictiveSortingEnabled', imported.settings.predictiveSortingEnabled || 'false');
             localStorage.setItem('darkModeEnabled', imported.settings.darkModeEnabled || 'false');
+            localStorage.setItem('enableDailyReport', imported.settings.enableDailyReport || 'false');
+            localStorage.setItem('enableMonthlyReport', imported.settings.enableMonthlyReport || 'false');
 
             // 應用匯入的設定
             setAutoBackupInterval(parseInt(imported.settings.autoBackupInterval || '1'));
@@ -1000,7 +1104,10 @@
               <span class="badge ${lowCup ? 'badge-low' : 'bg-primary'}">${customer.count} 杯</span>
               ${customer.note ? `<span class="note-badge" onclick="showEditNoteModal('${name}')">📝</span>` : ''}
             </h5>
-            ${customer.note ? `<small class="text-muted d-block mb-2">${customer.note}</small>` : ''}
+            <small class="text-muted d-block mb-2">
+              ${customer.productType ? `商品類型：${customer.productType}` : ''}
+              ${customer.note ? `<br>${customer.note}` : ''}
+            </small>
             ${predictiveSortingEnabled && customerPredictions ? 
                 `<small class="text-muted">預測下次：${customerPredictions.find(item => item.name === name)?.predictedDate?.toLocaleString() || '無數據'}</small>` 
                 : ''}
@@ -1031,6 +1138,7 @@
 
     function confirmAddMultipleCups() {
       const cupsToAdd = parseInt(document.getElementById('cupsToAddInput').value);
+      const productType = document.getElementById('cupsProductType').value;
       const name = currentCustomerToAddCups;
 
       if (isNaN(cupsToAdd) || cupsToAdd <= 0) {
@@ -1038,25 +1146,164 @@
         return;
       }
 
-      addCup(name, cupsToAdd); // 調用修改後的 addCup 函數
-
+      const data = getData();
+      if (!data[name]) data[name] = { count: 0, log: [], createdAt: new Date().toISOString() };
+      
+      // 更新商品類型
+      data[name].productType = productType;
+      data[name].count += cupsToAdd;
+      data[name].log.push(`+${cupsToAdd} 杯 ${productType}（${new Date().toLocaleString()}）`);
+      
+      saveData(data);
+      showToast(`已為 ${name} 增加 ${cupsToAdd} 杯 ${productType}`);
+      
       const modal = bootstrap.Modal.getInstance(document.getElementById('addMultipleCupsModal'));
       modal.hide();
+      render();
+    }
+
+    // 商品類型管理相關函數
+    function getProductTypes() {
+      return JSON.parse(localStorage.getItem('productTypes') || '["鐵觀音", "烏龍茶", "紅茶", "綠茶", "其他"]');
+    }
+
+    function saveProductTypes(types) {
+      localStorage.setItem('productTypes', JSON.stringify(types));
+    }
+
+    function addProductType() {
+      const input = document.getElementById('newProductType');
+      const newType = input.value.trim();
+      
+      if (!newType) {
+        showToast('請輸入商品類型名稱', 'danger');
+        return;
+      }
+
+      const types = getProductTypes();
+      if (types.includes(newType)) {
+        showToast('此商品類型已存在', 'danger');
+        return;
+      }
+
+      types.push(newType);
+      saveProductTypes(types);
+      input.value = '';
+      showToast('商品類型新增成功');
+      renderProductTypeList();
+      updateProductTypeSelects();
+    }
+
+    function editProductType(oldType) {
+      const modal = new bootstrap.Modal(document.getElementById('editProductTypeModal'));
+      document.getElementById('editProductTypeInput').value = oldType;
+      document.getElementById('editProductTypeInput').dataset.oldType = oldType;
+      modal.show();
+    }
+
+    function saveProductTypeEdit() {
+      const input = document.getElementById('editProductTypeInput');
+      const oldType = input.dataset.oldType;
+      const newType = input.value.trim();
+
+      if (!newType) {
+        showToast('請輸入商品類型名稱', 'danger');
+        return;
+      }
+
+      const types = getProductTypes();
+      if (types.includes(newType) && newType !== oldType) {
+        showToast('此商品類型已存在', 'danger');
+        return;
+      }
+
+      // 更新商品類型列表
+      const index = types.indexOf(oldType);
+      types[index] = newType;
+      saveProductTypes(types);
+
+      // 更新所有顧客的商品類型
+      const data = getData();
+      Object.values(data).forEach(customer => {
+        if (customer.productType === oldType) {
+          customer.productType = newType;
+        }
+      });
+      saveData(data);
+
+      bootstrap.Modal.getInstance(document.getElementById('editProductTypeModal')).hide();
+      showToast('商品類型更新成功');
+      renderProductTypeList();
+      updateProductTypeSelects();
+      render(); // 重新渲染顧客列表
+    }
+
+    function deleteProductType(type) {
+      if (!confirm(`確定要刪除商品類型「${type}」嗎？\n注意：此操作會將使用此商品類型的顧客改為「未指定」`)) {
+        return;
+      }
+
+      const types = getProductTypes();
+      const index = types.indexOf(type);
+      if (index > -1) {
+        types.splice(index, 1);
+        saveProductTypes(types);
+
+        // 更新所有使用此商品類型的顧客
+        const data = getData();
+        Object.values(data).forEach(customer => {
+          if (customer.productType === type) {
+            customer.productType = '未指定';
+          }
+        });
+        saveData(data);
+
+        showToast('商品類型已刪除');
+        renderProductTypeList();
+        updateProductTypeSelects();
+        render(); // 重新渲染顧客列表
+      }
+    }
+
+    function renderProductTypeList() {
+      const list = document.getElementById('productTypeList');
+      const types = getProductTypes();
+      
+      list.innerHTML = types.map(type => `
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <span>${type}</span>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" onclick="editProductType('${type}')">✏️</button>
+            <button class="btn btn-outline-danger" onclick="deleteProductType('${type}')">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateProductTypeSelects() {
+      const types = getProductTypes();
+      const options = types.map(type => `<option value="${type}">${type}</option>`).join('');
+      
+      // 更新所有商品類型選擇器
+      document.querySelectorAll('select[id$="ProductType"]').forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = options;
+        // 如果當前值仍然存在於新的選項中，保持選中
+        if (types.includes(currentValue)) {
+          select.value = currentValue;
+        }
+      });
     }
 
     // 設定相關函數
     function showSettingsModal() {
-      // 讀取當前設定值並顯示在輸入框中
-      const savedInterval = localStorage.getItem('autoBackupInterval') || '1';
-      document.getElementById('autoBackupIntervalInput').value = savedInterval;
-
-      // 讀取預測排序設定並顯示
-      const predictiveSortingEnabled = localStorage.getItem('predictiveSortingEnabled') === 'true';
-      document.getElementById('enablePredictiveSorting').checked = predictiveSortingEnabled;
-
-      // 讀取深色模式設定並顯示
-      const darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true';
-      document.getElementById('enableDarkMode').checked = darkModeEnabled;
+      // 讀取當前設定值
+      document.getElementById('autoBackupIntervalInput').value = localStorage.getItem('autoBackupInterval') || '1';
+      document.getElementById('enablePredictiveSorting').checked = localStorage.getItem('predictiveSortingEnabled') === 'true';
+      document.getElementById('enableDarkMode').checked = localStorage.getItem('darkModeEnabled') === 'true';
+      
+      // 渲染商品類型列表
+      renderProductTypeList();
 
       const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
       modal.show();
@@ -1068,34 +1315,28 @@
 
       if (isNaN(intervalHours) || intervalHours < 1) {
         showToast('請輸入有效的備份間隔 (至少為 1 小時)', 'danger');
-        inputElement.value = '1'; // 重置為預設值
+        inputElement.value = '1';
         return;
       }
 
-      // 儲存自動備份間隔設定到 localStorage
+      // 儲存所有設定
       localStorage.setItem('autoBackupInterval', intervalHours.toString());
-
-      // 儲存預測排序設定
-      const predictiveSortingEnabled = document.getElementById('enablePredictiveSorting').checked;
-      localStorage.setItem('predictiveSortingEnabled', predictiveSortingEnabled.toString());
-
-      // 儲存深色模式設定
-      const darkModeEnabled = document.getElementById('enableDarkMode').checked;
-      localStorage.setItem('darkModeEnabled', darkModeEnabled.toString());
+      localStorage.setItem('predictiveSortingEnabled', document.getElementById('enablePredictiveSorting').checked.toString());
+      localStorage.setItem('darkModeEnabled', document.getElementById('enableDarkMode').checked.toString());
 
       // 更新深色模式
-      applyDarkMode(darkModeEnabled);
+      applyDarkMode(document.getElementById('enableDarkMode').checked);
 
       // 更新自動備份計時器
       setAutoBackupInterval(intervalHours);
 
-      showToast('設定已儲存'); // 更改提示訊息
+      showToast('設定已儲存');
 
       // 關閉 Modal
       const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
       modal.hide();
 
-      // 設定更改後重新渲染以應用排序變化
+      // 重新渲染
       render();
     }
 
@@ -1112,7 +1353,7 @@
       // 清除之前的計時器
       if (autoBackupIntervalId !== null) {
         clearInterval(autoBackupIntervalId);
-      }
+    }
 
       // 設定新的計時器 (轉換為毫秒)
       const intervalMilliseconds = hours * 60 * 60 * 1000;
@@ -1137,6 +1378,245 @@
       modal.hide();
     }
 
+    // 新增報表相關函數
+    function showDailyReport() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('dailyReportDate').value = today;
+      updateDailyReport();
+      new bootstrap.Modal(document.getElementById('dailyReportModal')).show();
+    }
+
+    function showMonthlyReport() {
+      const today = new Date();
+      const yearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('monthlyReportMonth').value = yearMonth;
+      updateMonthlyReport();
+      new bootstrap.Modal(document.getElementById('monthlyReportModal')).show();
+    }
+
+    function updateDailyReport() {
+      const date = document.getElementById('dailyReportDate').value;
+      const data = getData();
+      const reportDate = new Date(date);
+      
+      // 收集當天的所有記錄
+      const dailyRecords = [];
+      Object.entries(data).forEach(([name, customer]) => {
+        customer.log.forEach(log => {
+          const logDate = new Date(log.match(/（(.*?)）/)[1]);
+          if (logDate.toDateString() === reportDate.toDateString()) {
+            dailyRecords.push({
+              name,
+              log,
+              productType: customer.productType || '未指定',
+              isAdd: log.startsWith('+'),
+              count: parseInt(log.match(/\d+/)[0])
+            });
+          }
+        });
+      });
+
+      // 生成報表內容
+      let content = `
+        <h6 class="mb-3">${reportDate.toLocaleDateString('zh-TW')} 營業報表</h6>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>時間</th>
+                <th>顧客</th>
+                <th>商品類型</th>
+                <th>操作</th>
+                <th>數量</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      // 按時間排序
+      dailyRecords.sort((a, b) => {
+        const timeA = new Date(a.log.match(/（(.*?)）/)[1]);
+        const timeB = new Date(b.log.match(/（(.*?)）/)[1]);
+        return timeA - timeB;
+      });
+
+      let totalAdd = 0;
+      let totalRemove = 0;
+
+      dailyRecords.forEach(record => {
+        const time = record.log.match(/（(.*?)）/)[1];
+        content += `
+          <tr>
+            <td>${time}</td>
+            <td>${record.name}</td>
+            <td>${record.productType}</td>
+            <td>${record.isAdd ? '加杯' : '扣杯'}</td>
+            <td>${record.count}</td>
+          </tr>
+        `;
+        if (record.isAdd) {
+          totalAdd += record.count;
+        } else {
+          totalRemove += record.count;
+        }
+      });
+
+      content += `
+            </tbody>
+            <tfoot>
+              <tr class="table-info">
+                <td colspan="3"><strong>當日統計</strong></td>
+                <td>加杯總數</td>
+                <td>${totalAdd}</td>
+              </tr>
+              <tr class="table-warning">
+                <td colspan="3"></td>
+                <td>扣杯總數</td>
+                <td>${totalRemove}</td>
+              </tr>
+              <tr class="table-primary">
+                <td colspan="3"></td>
+                <td>淨增加</td>
+                <td>${totalAdd - totalRemove}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('dailyReportContent').innerHTML = content;
+    }
+
+    function updateMonthlyReport() {
+      const yearMonth = document.getElementById('monthlyReportMonth').value;
+      const [year, month] = yearMonth.split('-').map(Number);
+      const data = getData();
+      
+      // 收集該月的所有記錄
+      const monthlyRecords = [];
+      Object.entries(data).forEach(([name, customer]) => {
+        customer.log.forEach(log => {
+          const logDate = new Date(log.match(/（(.*?)）/)[1]);
+          if (logDate.getFullYear() === year && logDate.getMonth() + 1 === month) {
+            monthlyRecords.push({
+              name,
+              log,
+              productType: customer.productType || '未指定',
+              isAdd: log.startsWith('+'),
+              count: parseInt(log.match(/\d+/)[0]),
+              date: logDate
+            });
+          }
+        });
+      });
+
+      // 生成報表內容
+      let content = `
+        <h6 class="mb-3">${year}年${month}月營業報表</h6>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>商品類型</th>
+                <th>加杯數</th>
+                <th>扣杯數</th>
+                <th>淨增加</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      // 按日期和商品類型分組統計
+      const dailyStats = {};
+      monthlyRecords.forEach(record => {
+        const date = record.date.toLocaleDateString('zh-TW');
+        if (!dailyStats[date]) {
+          dailyStats[date] = {};
+        }
+        if (!dailyStats[date][record.productType]) {
+          dailyStats[date][record.productType] = { add: 0, remove: 0 };
+        }
+        if (record.isAdd) {
+          dailyStats[date][record.productType].add += record.count;
+        } else {
+          dailyStats[date][record.productType].remove += record.count;
+        }
+      });
+
+      // 按日期排序
+      const sortedDates = Object.keys(dailyStats).sort((a, b) => new Date(a) - new Date(b));
+      
+      let totalAdd = 0;
+      let totalRemove = 0;
+      const productTypeStats = {};
+
+      sortedDates.forEach(date => {
+        const productTypes = Object.keys(dailyStats[date]);
+        productTypes.forEach(productType => {
+          const stats = dailyStats[date][productType];
+          const netChange = stats.add - stats.remove;
+          
+          if (!productTypeStats[productType]) {
+            productTypeStats[productType] = { add: 0, remove: 0 };
+          }
+          productTypeStats[productType].add += stats.add;
+          productTypeStats[productType].remove += stats.remove;
+
+          content += `
+            <tr>
+              <td>${date}</td>
+              <td>${productType}</td>
+              <td>${stats.add}</td>
+              <td>${stats.remove}</td>
+              <td>${netChange}</td>
+            </tr>
+          `;
+
+          totalAdd += stats.add;
+          totalRemove += stats.remove;
+        });
+      });
+
+      // 添加商品類型統計
+      content += `
+            </tbody>
+            <tfoot>
+              <tr class="table-info">
+                <td colspan="2"><strong>商品類型統計</strong></td>
+                <td colspan="3"></td>
+              </tr>
+      `;
+
+      Object.entries(productTypeStats).forEach(([productType, stats]) => {
+        const netChange = stats.add - stats.remove;
+        content += `
+          <tr class="table-light">
+            <td colspan="2">${productType}</td>
+            <td>${stats.add}</td>
+            <td>${stats.remove}</td>
+            <td>${netChange}</td>
+          </tr>
+        `;
+      });
+
+      content += `
+            </tbody>
+            <tfoot>
+              <tr class="table-primary">
+                <td colspan="2"><strong>月結統計</strong></td>
+                <td>${totalAdd}</td>
+                <td>${totalRemove}</td>
+                <td>${totalAdd - totalRemove}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('monthlyReportContent').innerHTML = content;
+    }
+
     // 初始化
     document.addEventListener('DOMContentLoaded', () => {
       // 載入並應用深色模式設定
@@ -1144,8 +1624,11 @@
       applyDarkMode(darkModeEnabled);
 
       // 載入並啟動自動備份
-      const savedInterval = localStorage.getItem('autoBackupInterval') || '1'; // 讀取儲存的間隔，預設 1 小時
+      const savedInterval = localStorage.getItem('autoBackupInterval') || '1';
       setAutoBackupInterval(parseInt(savedInterval));
+
+      // 初始化商品類型選擇器
+      updateProductTypeSelects();
 
       // 初始化時根據設定渲染
       render();
