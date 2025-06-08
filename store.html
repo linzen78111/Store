@@ -11,6 +11,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* 確保更新內容視窗在最上層 */
+    #whatsNewModal {
+      z-index: 1060 !important; /* Bootstrap 預設的 modal z-index 是 1055 */
+    }
+    
+    /* 確保更新內容視窗的背景遮罩也在最上層 */
+    #whatsNewModal + .modal-backdrop {
+      z-index: 1059 !important;
+    }
+  </style>
 </head>
 <body class="container">
   <!-- 更新加載動畫 -->
