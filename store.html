@@ -10,573 +10,9 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <style>
-    /* 字體與背景 */
-  body {
-    font-family: "Noto Sans TC", sans-serif;
-    background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1, #fbc2eb);
-    background-size: 1000% 1000%;
-    animation: gradientShift 30s ease infinite;
-    transition: background 0.5s ease;
-      color: #333;
-      /* 使用 Flexbox 佈局 */
-      display: flex;
-      flex-direction: column;
-  }
-
-  /* 更新加載動畫 */
-  .update-loading {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-
-  .update-loading.show {
-    display: flex;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  .update-loading-spinner {
-    width: 80px;
-    height: 80px;
-    position: relative;
-    margin-bottom: 20px;
-  }
-
-  .update-loading-spinner::before,
-  .update-loading-spinner::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    animation: updateSpinner 5s linear infinite;
-  }
-
-  .update-loading-spinner::before {
-    width: 100%;
-    height: 100%;
-    border: 4px solid transparent;
-    border-top-color: #0078d4;
-    border-right-color: #0078d4;
-    animation-delay: -0.5s;
-  }
-
-  .update-loading-spinner::after {
-    width: 70%;
-    height: 70%;
-    top: 15%;
-    left: 15%;
-    border: 4px solid transparent;
-    border-top-color: #fad0c4;
-    border-right-color: #fad0c4;
-  }
-
-  .update-loading-text {
-    color: white;
-    font-size: 1.2rem;
-    text-align: center;
-    margin-top: 20px;
-    animation: updateTextPulse 1.5s ease-in-out infinite;
-  }
-
-  .update-loading-progress {
-    width: 200px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
-    margin-top: 15px;
-    overflow: hidden;
-  }
-
-  .update-loading-progress-bar {
-    width: 0%;
-    height: 100%;
-    background: #0078d4;
-    animation: updateProgress 2s ease-in-out infinite;
-  }
-
-  @keyframes updateSpinner {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes updateTextPulse {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.7;
-    }
-  }
-
-  @keyframes updateProgress {
-    0% {
-      width: 0%;
-    }
-    50% {
-      width: 100%;
-    }
-    100% {
-      width: 100%;
-    }
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  /* 更新 Modal 動畫效果 */
-  #updateModal .modal-dialog {
-    transform: scale(0.7);
-    opacity: 0;
-    transition: all 0.3s ease-in-out;
-  }
-
-  #updateModal.show .modal-dialog {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  /* 更新按鈕動畫 */
-  #updateModal .btn-primary {
-    position: relative;
-    overflow: hidden;
-  }
-
-  #updateModal .btn-primary::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.5);
-    opacity: 0;
-    border-radius: 100%;
-    transform: scale(1, 1) translate(-50%);
-    transform-origin: 50% 50%;
-  }
-
-  #updateModal .btn-primary:focus:not(:active)::after {
-    animation: ripple 1s ease-out;
-  }
-
-  @keyframes ripple {
-    0% {
-      transform: scale(0, 0);
-      opacity: 0.5;
-    }
-    100% {
-      transform: scale(20, 20);
-      opacity: 0;
-    }
-  }
-
-  /* 版本號更新動畫 */
-  #updateModal .version-update {
-    animation: versionPulse 2s infinite;
-  }
-
-  @keyframes versionPulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  /* 確保更新 Modal 顯示在最上層 */
-  #updateModal {
-    z-index: 1060 !important;
-  }
-
-  @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    /* 卡片 */
-    .card {
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .card:hover {
-      transform: scale(1.03);
-      box-shadow: 0 8px 20px rgba(0, 123, 255, 0.25);
-    }
-
-    /* 標題 */
-    h1 {
-      color: #1f3b73; /* 深藍 */
-      font-weight: 700;
-    }
-
-    /* OPENPOINT 主色調按鈕 */
-    .btn-primary {
-      background-color: #0078d4;
-      border-color: #0078d4;
-      font-weight: 600;
-      border-radius: 12px;
-      transition: background-color 0.3s ease;
-    }
-    .btn-primary:hover {
-      background-color: #005a9e;
-      border-color: #005a9e;
-    }
-
-    /* 其他按鈕色彩調整 */
-    .btn-success {
-      background-color: #28a745;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-    .btn-success:hover {
-      background-color: #1e7e34;
-    }
-    .btn-warning {
-      background-color: #ffc107;
-      border-radius: 12px;
-      font-weight: 600;
-      color: #212529;
-    }
-    .btn-warning:hover {
-      background-color: #e0a800;
-      color: #212529;
-    }
-    .btn-info {
-      background-color: #17a2b8;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-    .btn-info:hover {
-      background-color: #117a8b;
-    }
-    .btn-secondary {
-      border-radius: 12px;
-      font-weight: 600;
-    }
-
-    /* 警示徽章：低杯數紅標 */
-    .badge-low {
-      background-color: #dc3545 !important; /* 紅色 */
-      color: white;
-      font-weight: 700;
-      box-shadow: 0 0 5px rgba(220, 53, 69, 0.7);
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.7); }
-      50% { box-shadow: 0 0 15px rgba(220, 53, 69, 1); }
-    }
-
-    /* 搜尋欄陰影 */
-    #searchInput {
-      border-radius: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    /* 手機友善間距 */
-    .btn-group {
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    /* 新增樣式 */
-    .toast-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1050;
-    }
-
-    .customer-card {
-      transition: all 0.3s ease;
-    }
-
-    .customer-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .stats-badge {
-      font-size: 0.8rem;
-      padding: 0.25rem 0.5rem;
-      margin-left: 0.5rem;
-    }
-
-    .note-badge {
-      background-color: #6c757d;
-      color: white;
-      font-size: 0.8rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      margin-left: 0.5rem;
-      cursor: pointer;
-    }
-
-    .note-badge:hover {
-      background-color: #5a6268;
-    }
-
-    @media (max-width: 576px) {
-      .btn-group {
-        flex-direction: column;
-        width: 100%;
-      }
-      .btn-group .btn {
-        width: 100%;
-        margin: 2px 0;
-        padding: .25rem .5rem;
-        font-size: .875rem;
-      }
-      .customer-card .d-flex {
-        flex-direction: column;
-        align-items: stretch !important;
-      }
-      .customer-card .btn-group {
-        margin-top: 10px;
-      }
-      .customer-card .d-flex > div:last-child {
-        gap: 5px !important;
-      }
-    }
-
-    /* 進一步縮小顧客卡片內的按鈕 */
-    .customer-card .btn-group .btn,
-    .customer-card .btn-outline-info.btn-sm,
-    .customer-card .btn-outline-danger.btn-sm {
-      padding: .2rem .4rem; /* 稍微縮小內距 */
-      font-size: .8rem; /* 縮小字體 */
-      border-radius: 8px; /* 調整圓角 */
-    }
-
-    .customer-card .d-flex > div:last-child {
-      gap: 8px; /* 調整按鈕之間的間距 */
-    }
-
-    /* 新增樣式以調整卡片內部結構間距 */
-    .customer-card > div:first-child {
-        margin-bottom: 10px; /* 增加名稱/備註區域和按鈕區域之間的間距 */
-    }
-
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-
-    .container {
-        flex-grow: 1; /* 讓容器佔據剩餘空間 */
-        display: flex; /* 使用 Flexbox 佈局內部內容 */
-        flex-direction: column;
-        padding-top: 1.5rem !important; /* 恢復頂部內距 */
-        padding-bottom: 1.5rem !important; /* 恢復底部內距 */
-        overflow: hidden; /* 防止內容溢出容器導致整體滾動 */
-    }
-
-    .main-content {
-        flex-grow: 1; /* 讓主要內容區塊佔據剩餘空間 */
-        overflow-y: auto; /* 垂直方向可滾動 */
-        padding-top: 1rem; /* 為主要內容區塊添加頂部內距 */
-    }
-
-    /* 深色模式 */
-    .dark-mode {
-      background: linear-gradient(270deg, #2c3e50, #34495e, #2c3e50, #1a252f, #1a252f); /* 更深的漸變背景 */
-      color: #ecf0f1; /* 淺灰文字 */
-    }
-
-    .dark-mode h1 {
-      color: #bdc3c7; /* 較淺的標題顏色 */
-    }
-
-    .dark-mode .card {
-      background-color: #34495e; /* 深藍背景 */
-      color: #ecf0f1; /* 淺灰文字 */
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* 調整陰影 */
-    }
-
-    .dark-mode .card:hover {
-       box-shadow: 0 8px 20px rgba(0, 123, 255, 0.1); /* 調整陰影 */
-    }
-
-    .dark-mode .badge-low {
-      background-color: #e74c3c !important; /* 調整紅色 */
-    }
-
-    .dark-mode .bg-primary {
-       background-color: #3498db !important; /* 調整藍色 */
-    }
-
-    .dark-mode .btn-primary {
-        background-color: #3498db; /* 調整按鈕藍色 */
-        border-color: #3498db;
-    }
-    .dark-mode .btn-primary:hover {
-        background-color: #2980b9; /* 調整 hover 藍色 */
-        border-color: #2980b9;
-    }
-
-     .dark-mode .btn-success {
-      background-color: #2ecc71; /* 調整按鈕綠色 */
-      border-color: #2ecc71;
-    }
-    .dark-mode .btn-success:hover {
-      background-color: #27ae60; /* 調整 hover 綠色 */
-      border-color: #27ae60;
-    }
-
-     .dark-mode .btn-secondary {
-        background-color: #7f8c8d; /* 調整按鈕灰色 */
-        border-color: #7f8c8d;
-        color: #ecf0f1; /* 淺灰文字 */
-    }
-     .dark-mode .btn-secondary:hover {
-        background-color: #95a5a6; /* 調整 hover 灰色 */
-        border-color: #95a5a6;
-    }
-
-    .dark-mode .btn-warning {
-      background-color: #f1c40f; /* 調整按鈕黃色 */
-      border-color: #f1c40f;
-      color: #333; /* 深色文字 */
-    }
-    .dark-mode .btn-warning:hover {
-      background-color: #f39c12; /* 調整 hover 黃色 */
-      border-color: #f39c12;
-    }
-
-    .dark-mode .btn-info {
-      background-color: #3498db; /* 調整按鈕淺藍 */
-      border-color: #3498db;
-    }
-     .dark-mode .btn-info:hover {
-      background-color: #2980b9; /* 調整 hover 淺藍 */
-      border-color: #2980b9;
-    }
-
-     .dark-mode .btn-outline-info {
-      color: #3498db; /* 調整外框按鈕顏色 */
-      border-color: #3498db;
-    }
-     .dark-mode .btn-outline-info:hover {
-       color: #ecf0f1; /* 調整外框按鈕 hover 顏色 */
-       background-color: #3498db;
-       border-color: #3498db;
-    }
-
-    .dark-mode .btn-outline-danger {
-       color: #e74c3c; /* 調整外框按鈕顏色 */
-       border-color: #e74c3c;
-    }
-     .dark-mode .btn-outline-danger:hover {
-        color: #ecf0f1; /* 調整外框按鈕 hover 顏色 */
-        background-color: #e74c3c;
-        border-color: #e74c3c;
-    }
-
-    .dark-mode #searchInput {
-        background-color: #2c3e50; /* 深色背景 */
-        color: #ecdef1; /* 淺灰文字 */
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* 調整陰影 */
-        border-color: #34495e; /* 調整邊框顏色 */
-    }
-
-    .dark-mode .alert-info {
-        background-color: #3498db;
-        color: #ecf0f1;
-        border-color: #2980b9;
-    }
-
-     .dark-mode .alert-success {
-        background-color: #2ecc71;
-        color: #ecf0f1;
-        border-color: #27ae60;
-    }
-
-     .dark-mode .alert-danger {
-        background-color: #e74c3c;
-        color: #ecf0f1;
-        border-color: #c0392b;
-    }
-
-    .dark-mode .modal-content {
-        background-color: #2c3e50; /* 深色背景 */
-        color: #ecf0f1; /* 淺灰文字 */
-    }
-
-    .dark-mode .modal-header {
-        border-color: #34495e; /* 調整邊框顏色 */
-    }
-
-     .dark-mode .modal-footer {
-        border-color: #34495e; /* 調整邊框顏色 */
-    }
-
-    .dark-mode .list-group-item {
-        background-color: #34495e; /* 深色背景 */
-        color: #ecf0f1; /* 淺灰文字 */
-        border-color: rgba(255, 255, 255, 0.1); /* 調整邊框顏色 */
-    }
-
-    .dark-mode .list-group-item-action:hover {
-        background-color: #2c3e50; /* 深色 hover 背景 */
-    }
-
-    .dark-mode .form-label {
-        color: #bdc3c7; /* 調整標籤顏色 */
-    }
-
-    .dark-mode .form-control {
-        background-color: #34495e; /* 深色背景 */
-        color: #ecf0f1; /* 淺灰文字 */
-        border-color: #34495e; /* 調整邊框顏色 */
-    }
-
-    .dark-mode .form-control::placeholder {
-        color: #bdc3c7; /* 調整 placeholder 顏色 */
-        opacity: 0.7; /* 調整透明度 */
-    }
-
-    .dark-mode .text-muted {
-        color: #bdc3c7 !important; /* 調整靜默文字顏色 */
-    }
-
-    .dark-mode .toast-body {
-       color: #ecf0f1; /* 淺灰文字 */
-    }
-
-    .dark-mode .note-badge {
-       background-color: #5a6268; /* 調整備註徽章顏色 */
-    }
-     .dark-mode .note-badge:hover {
-        background-color: #6c757d; /* 調整備註徽章 hover 顏色 */
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body class="container py-4">
+<body class="container">
   <!-- 更新加載動畫 -->
   <div class="update-loading" id="updateLoading">
     <div class="update-loading-spinner"></div>
@@ -586,54 +22,76 @@
     </div>
   </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0">☕ 寄杯管理小工具</h1>
-    <div class="mt-2 mt-sm-0">
-      <button class="btn btn-sm btn-outline-primary" onclick="showQuickSearch()">🔍 快速搜尋</button>
-    </div>
-  </div>
-
-  <!-- 統計資訊 -->
-  <div class="alert alert-info mb-3" role="alert">
-    <div class="d-flex justify-content-between align-items-center flex-wrap">
-      <div>
-        <span class="badge bg-primary me-2">總顧客數：<span id="totalCustomers">0</span></span>
-        <span class="badge bg-success me-2">總杯數：<span id="totalCups">0</span></span>
-        <span class="badge bg-warning text-dark">最後更新：<span id="lastUpdate">-</span></span>
+  <!-- Navbar with Offcanvas (Hamburger Menu) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">☕ 寄杯管理小工具</a>
+      <div class="d-flex align-items-center">
+        <button class="btn btn-sm btn-outline-light me-2" onclick="showQuickSearch()">🔍 快速搜尋</button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+      <div class="offcanvas offcanvas-end bg-primary text-white" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">選單</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item mb-2">
+              <button class="btn btn-info w-100" onclick="backup()" data-bs-dismiss="offcanvas">手動備份</button>
+            </li>
+            <li class="nav-item mb-2">
+              <input type="file" id="importInput" accept=".json" style="display:none" onchange="importBackup(event)" />
+              <button class="btn btn-warning w-100" onclick="document.getElementById('importInput').click();" data-bs-dismiss="offcanvas">匯入備份</button>
+            </li>
+            <li class="nav-item mb-2">
+              <button class="btn btn-secondary w-100" type="button" data-bs-toggle="modal" data-bs-target="#settingsModal" id="settingsButton" data-bs-dismiss="offcanvas">設定</button>
+            </li>
+            <!-- 可以添加更多菜單項目 -->
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
+  </nav>
 
   <!-- 將搜尋、按鈕和列表包裝在一個新的 div 中 -->
   <div class="main-content">
-  <!-- 搜尋欄位 -->
-  <div class="mb-3">
-    <input id="searchInput" class="form-control" placeholder="🔍 搜尋顧客名稱" oninput="render()" />
-  </div>
+    <!-- 統計資訊 -->
+    <div class="alert alert-info mb-3" role="alert">
+      <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+          <span class="badge bg-primary me-2">總顧客數：<span id="totalCustomers">0</span></span>
+          <span class="badge bg-success me-2">總杯數：<span id="totalCups">0</span></span>
+          <span class="badge bg-warning text-dark">最後更新：<span id="lastUpdate">-</span></span>
+        </div>
+      </div>
+    </div>
 
-  <!-- 按鈕列 -->
-  <div class="mb-3 d-flex flex-wrap gap-2 btn-group">
-    <button class="btn btn-info" onclick="backup()">手動備份</button>
-    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importBackup(event)" />
-    <button class="btn btn-warning" onclick="document.getElementById('importInput').click()">匯入備份</button>
-    <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#settingsModal">
-      設定
-    </button>
-  </div>
+    <!-- 搜尋欄位 -->
+    <div class="mb-3">
+      <input id="searchInput" class="form-control" placeholder="🔍 搜尋顧客名稱" oninput="render()" />
+    </div>
 
-  <!-- 顧客列表 -->
-  <div id="customerList" class="vstack gap-3"></div>
+    <!-- 新增顧客按鈕 (靜態放置) -->
+    <div class="text-center mb-3">
+      <button class="btn btn-primary" onclick="showAddCustomerModal()">➕ 新增顧客</button>
+    </div>
+
+    <!-- 顧客列表 -->
+    <div id="customerList" class="vstack gap-3"></div>
   </div>
 
   <!-- Toast 提示容器 -->
   <div class="toast-container"></div>
 
   <!-- 新增自訂的更新提示 Modal -->
-  <div id="updateModal" class="modal fade" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+  <div id="newVersionAvailableModal" class="modal fade" tabindex="-1" aria-labelledby="newVersionAvailableModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-4 shadow-sm">
         <div class="modal-header">
-          <h5 class="modal-title" id="updateModalLabel">
+          <h5 class="modal-title" id="newVersionAvailableModalLabel">
             <span class="version-update">✨</span> 新版本可用！
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -649,9 +107,27 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">稍後再說</button>
-          <button type="button" class="btn btn-primary version-update" onclick="applyUpdate()">
-            <span class="me-1">🔄</span>立即更新
+          <button type="button" class="btn btn-primary version-update" onclick="showWhatsNewModalFromNewVersionAvailableModal()">
+            <span class="me-1">🔄</span>我知道了
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 更新內容 Modal -->
+  <div id="whatsNewModal" class="modal fade" tabindex="-1" aria-labelledby="whatsNewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content rounded-4 shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="whatsNewModalLabel">🎉 最新版本更新！</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="whatsNewModalBody">
+          <!-- Updates will be loaded here dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="markUpdateAsSeen()">知道了</button>
         </div>
       </div>
     </div>
@@ -1086,7 +562,11 @@
         list.appendChild(item);
       });
       
-      new bootstrap.Modal(document.getElementById('quickSearchModal')).show();
+      let quickSearchModal = bootstrap.Modal.getInstance(document.getElementById('quickSearchModal'));
+      if (!quickSearchModal) {
+        quickSearchModal = new bootstrap.Modal(document.getElementById('quickSearchModal'));
+      }
+      quickSearchModal.show();
     }
 
     // 備註相關函數
@@ -1094,7 +574,11 @@
       currentEditingCustomer = name;
       const data = getData();
       document.getElementById('editCustomerNote').value = data[name].note || '';
-      new bootstrap.Modal(document.getElementById('editNoteModal')).show();
+      let editNoteModal = bootstrap.Modal.getInstance(document.getElementById('editNoteModal'));
+      if (!editNoteModal) {
+        editNoteModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+      }
+      editNoteModal.show();
     }
 
     function saveCustomerNote() {
@@ -1112,10 +596,10 @@
 
     // 顧客管理函數
     function showAddCustomerModal() {
-      const modal = new bootstrap.Modal(document.getElementById('addCustomerModal'));
-      document.getElementById('newCustomerName').value = '';
-      document.getElementById('newCustomerProductType').value = '鐵觀音';
-      document.getElementById('newCustomerNote').value = '';
+      let modal = bootstrap.Modal.getInstance(document.getElementById('addCustomerModal'));
+      if (!modal) {
+        modal = new bootstrap.Modal(document.getElementById('addCustomerModal'));
+      }
       modal.show();
     }
 
@@ -1212,16 +696,19 @@
 
       // 新增新的事件監聽器
       newConfirmActionBtn.addEventListener('click', () => {
-      const data = getData();
-      delete data[name];
-      saveData(data);
+        const data = getData();
+        delete data[name];
+        saveData(data);
         showToast(`已移除顧客 ${name}`);
-      render();
-        bootstrap.Modal.getInstance(confirmModalElement).hide();
+        render();
+        if (confirmModalElement._modal) {
+          confirmModalElement._modal.hide();
+        }
       });
 
-      const confirmModal = new bootstrap.Modal(confirmModalElement);
-      confirmModal.show();
+      if (confirmModalElement._modal) {
+        confirmModalElement._modal.show();
+      }
     }
 
     function viewHistory(name) {
@@ -1229,7 +716,11 @@
       const log = data[name]?.log || [];
       document.getElementById('historyContent').innerHTML =
         `<ul class="list-group">${log.map(item => `<li class="list-group-item">${item}</li>`).join('')}</ul>`;
-      new bootstrap.Modal(document.getElementById('historyModal')).show();
+      let historyModal = bootstrap.Modal.getInstance(document.getElementById('historyModal'));
+      if (!historyModal) {
+        historyModal = new bootstrap.Modal(document.getElementById('historyModal'));
+      }
+      historyModal.show();
     }
 
     // 備份相關函數
@@ -1270,7 +761,7 @@
       a.download = `寄杯備份_${formattedDate}.json`;
       a.click();
 
-      showBackupNoticeModal('備份檔案已下載', `檔案名稱：<strong>寄杯備份_${formattedDate}.json</strong><hr><p class="mb-0"><strong>iOS 使用者請注意：</strong><br>1. 點擊下載的檔案<br>2. 選擇「儲存到檔案」<br>3. 選擇「我的 iPhone」或「iCloud 雲碟」<br>4. 建議建立「寄杯備份」資料夾存放<br><br><strong>請務必將備份檔案妥善保存，避免資料遺失！</strong></p>`);
+      showBackupNoticeModal('備份檔案已下載', `檔案名稱：<strong>寄杯備份_${formattedDate}.json</strong><hr><p class="mb-0"><strong>iOS 使用者請注意：</strong><br>1. 點擊下載的檔案<br>2. 選擇「分享圖標」<br>3. 選擇「儲存檔案」到「我的iPhone」<br>4. 建議建立「寄杯備份」資料夾存放<br><br><strong>請務必將備份檔案妥善保存，避免資料遺失！</strong></p>`);
     }
 
     // 將備份提示改為 Modal
@@ -1282,8 +773,9 @@
       modalTitle.textContent = title;
       modalBody.innerHTML = message;
       
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+      if (modalElement._modal) {
+        modalElement._modal.show();
+      }
     }
 
     function importBackup(event) {
@@ -1326,6 +818,7 @@
 
     // 預測相關函數
     function calculatePredictedNextVisit(customerLog) {
+        console.log('--- calculatePredictedNextVisit for customerLog:', customerLog); // 新增日誌
         // 1. 只取提杯記錄
         const removeCupLogs = (customerLog || []).filter(log => {
             if (typeof log === 'string') {
@@ -1348,11 +841,21 @@
                 dateString = log.timestamp;
             }
             
-            if (!dateString) return null;
+            if (!dateString) {
+                console.log('Skipping log due to no dateString:', log); // 新增日誌
+                return null;
+            }
             
             const date = new Date(dateString);
-            return isNaN(date.getTime()) ? null : date;
+            if (isNaN(date.getTime())) {
+                console.log('Invalid date parsed:', dateString); // 新增日誌
+                return null;
+            }
+            return date;
         }).filter(date => date !== null).sort((a, b) => a.getTime() - b.getTime());
+
+        console.log('removeCupLogs:', removeCupLogs); // 新增日誌
+        console.log('Parsed dates:', dates); // 新增日誌
 
         // 如果解析出的有效日期少於兩筆，返回 null
         if (dates.length < 2) {
@@ -1372,6 +875,9 @@
 
         // 計算平均間隔 (毫秒)
         const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+
+        console.log('Intervals:', intervals); // 新增日誌
+        console.log('Average Interval:', averageInterval); // 新增日誌
 
         // 預測下一次來訪日期 = 最後一次提杯日期 + 平均間隔
         const lastVisitDate = dates[dates.length - 1];
@@ -1426,16 +932,12 @@
         list.innerHTML = `
           <div class="text-center">
             <p class="text-muted">找不到符合的顧客</p>
-            <button class="btn btn-primary" onclick="showAddCustomerModal()">➕ 新增顧客</button>
           </div>`;
         return;
       }
 
-      // 新增顧客按鈕
-      const addButton = document.createElement('div');
-      addButton.className = 'text-center mb-3';
-      addButton.innerHTML = '<button class="btn btn-primary" onclick="showAddCustomerModal()">➕ 新增顧客</button>';
-      list.appendChild(addButton);
+      // 清空列表，新增顧客按鈕已在 HTML 中靜態放置
+      list.innerHTML = '';
 
       for (const name of filteredNames) {
         const customer = data[name];
@@ -1477,7 +979,10 @@
     function showAddMultipleCupsModal(name) {
       currentCustomerToAddCups = name; // 記錄當前要加杯的顧客
       document.getElementById('cupsToAddInput').value = '1'; // 預設值設為 1
-      const modal = new bootstrap.Modal(document.getElementById('addMultipleCupsModal'));
+      let modal = bootstrap.Modal.getInstance(document.getElementById('addMultipleCupsModal'));
+      if (!modal) {
+        modal = new bootstrap.Modal(document.getElementById('addMultipleCupsModal'));
+      }
       modal.show();
     }
 
@@ -1628,7 +1133,10 @@
         bootstrap.Modal.getInstance(confirmModalElement).hide();
       });
 
-      const confirmModal = new bootstrap.Modal(confirmModalElement);
+      let confirmModal = bootstrap.Modal.getInstance(confirmModalElement);
+      if (!confirmModal) {
+        confirmModal = new bootstrap.Modal(confirmModalElement);
+      }
       confirmModal.show();
     }
 
@@ -1666,9 +1174,10 @@
     }
 
     function editProductType(oldType) {
-      const modal = new bootstrap.Modal(document.getElementById('editProductTypeModal'));
-      document.getElementById('editProductTypeInput').value = oldType;
-      document.getElementById('editProductTypeInput').dataset.oldType = oldType;
+      let modal = bootstrap.Modal.getInstance(document.getElementById('editProductTypeModal'));
+      if (!modal) {
+        modal = new bootstrap.Modal(document.getElementById('editProductTypeModal'));
+      }
       modal.show();
     }
 
@@ -1753,17 +1262,10 @@
 
     // 設定相關函數
     function showSettingsModal() {
-      // 讀取當前設定值
-      document.getElementById('autoBackupIntervalInput').value = localStorage.getItem('autoBackupInterval') || '1';
-      document.getElementById('enablePredictiveSorting').checked = localStorage.getItem('predictiveSortingEnabled') === 'true';
-      document.getElementById('enableDarkMode').checked = localStorage.getItem('darkModeEnabled') === 'true';
-      document.getElementById('enableDailyReport').checked = localStorage.getItem('enableDailyReport') === 'true';
-      document.getElementById('enableMonthlyReport').checked = localStorage.getItem('enableMonthlyReport') === 'true';
-
-      // 渲染商品類型列表
-      renderProductTypeList();
-
-      const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+      let modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+      if (!modal) {
+        modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+      }
       modal.show();
     }
 
@@ -1779,7 +1281,7 @@
 
       // 儲存所有設定
       localStorage.setItem('autoBackupInterval', intervalHours.toString());
-      localStorage.setItem('predictiveSortingEnabled', document.getElementById('enablePredictiveSorting').checked.toString());
+      localStorage.setItem('enablePredictiveSorting', document.getElementById('enablePredictiveSorting').checked.toString());
       localStorage.setItem('enableDarkMode', document.getElementById('enableDarkMode').checked.toString());
 
       // 更新深色模式
@@ -1821,43 +1323,50 @@
 
     // 自動備份
     function autoBackup() {
-      // 不再直接調用 backup()，而是顯示 Modal
-      const modal = new bootstrap.Modal(document.getElementById('autoBackupReadyModal'));
-      modal.show();
+      const modalElement = document.getElementById('autoBackupReadyModal');
+      if (modalElement._modal) {
+        modalElement._modal.show();
+      }
       console.log('自動備份完成，提示用戶下載。');
     }
 
     // 觸發自動備份下載
     function triggerAutoBackupDownload() {
-      // 調用現有的 backup 函數來執行下載
       backup();
-      // 關閉 Modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('autoBackupReadyModal'));
-      modal.hide();
+      const modalElement = document.getElementById('autoBackupReadyModal');
+      if (modalElement._modal) {
+        modalElement._modal.hide();
+      }
     }
 
     // 新增報表相關函數
     function showDailyReport() {
       const today = new Date();
-      // 使用本地時間
       const year = today.getFullYear();
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const day = String(today.getDate()).padStart(2, '0');
       const formattedDate = `${year}-${month}-${day}`;
       document.getElementById('dailyReportDate').value = formattedDate;
       updateDailyReport();
-      new bootstrap.Modal(document.getElementById('dailyReportModal')).show();
+      
+      const modalElement = document.getElementById('dailyReportModal');
+      if (modalElement._modal) {
+        modalElement._modal.show();
+      }
     }
 
     function showMonthlyReport() {
       const today = new Date();
-      // 使用本地時間
       const year = today.getFullYear();
       const month = String(today.getMonth() + 1).padStart(2, '0');
-      const yearMonth = `${year}-${month}`;
-      document.getElementById('monthlyReportMonth').value = yearMonth;
+      const formattedMonth = `${year}-${month}`;
+      document.getElementById('monthlyReportMonth').value = formattedMonth;
       updateMonthlyReport();
-      new bootstrap.Modal(document.getElementById('monthlyReportModal')).show();
+      
+      const modalElement = document.getElementById('monthlyReportModal');
+      if (modalElement._modal) {
+        modalElement._modal.show();
+      }
     }
 
     function parseChineseDateTime(timeStr) {
@@ -2374,7 +1883,7 @@
     // PWA: 註冊 service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/Store/service-worker.js').then(function(registration) {
+        navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
           console.log('ServiceWorker 註冊成功:', registration.scope);
         }, function(err) {
           console.log('ServiceWorker 註冊失敗:', err);
@@ -2441,30 +1950,28 @@
         localStorage.setItem('lastUpdateCheck', now);
         updateLastCheckTimeDisplay(); // Update display immediately after setting new time
         
-        // 獲取 manifest.json
+        // 獲取 updates.json
         // 加入時間戳避免瀏覽器快取
-        const response = await fetch('./manifest.json?t=' + now);
+        const response = await fetch('./updates.json?t=' + now);
         if (!response.ok) {
-            // 如果 manifest.json 無法訪問 (例如 404)，不視為更新錯誤，可能是 PWA 安裝在非根目錄
-            console.warn(`Failed to fetch manifest.json: status ${response.status}`);
+            console.warn(`Failed to fetch updates.json: status ${response.status}`);
             if (!silent && response.status !== 404) {
-                 showToast(`檢查更新失敗：無法獲取 manifest.json (狀態碼: ${response.status})`, 'danger');
+                 showToast(`檢查更新失敗：無法獲取 updates.json (狀態碼: ${response.status})`, 'danger');
             }
              isCheckingForUpdates = false;
-            return; // 無法獲取 manifest，結束檢查
+            return; // 無法獲取 updates，結束檢查
         }
-        const manifest = await response.json();
+        const updatesData = await response.json();
         
-        // 獲取當前版本
-        const currentVersionElement = document.getElementById('currentVersion');
-        const currentVersion = currentVersionElement ? currentVersionElement.textContent : '-';
+        // 獲取當前版本 (從 localStorage 或 default)
+        const currentVersion = localStorage.getItem('appVersion') || '0.0'; // 預設版本為 0.0
 
-        console.log(`Current version: ${currentVersion}, Manifest version: ${manifest.version}`); // Debug line
+        console.log(`Current version: ${currentVersion}, Updates version: ${updatesData.version}`); // Debug line
         
         // 比較版本
-        if (manifest.version && manifest.version !== currentVersion) {
+        if (updatesData.version && updatesData.version !== currentVersion) {
           updateAvailable = true;
-          newVersion = manifest.version;
+          newVersion = updatesData.version;
           
           // 更新版本號顯示在 Modal 中
           const currentVersionModalElement = document.getElementById('currentVersionModal');
@@ -2472,17 +1979,18 @@
           if (currentVersionModalElement) currentVersionModalElement.textContent = currentVersion;
           if (newVersionModalElement) newVersionModalElement.textContent = newVersion;
 
-          // 更新當前版本號顯示
-          if (currentVersionElement) {
-            currentVersionElement.textContent = manifest.version;
+          // 更新更新內容
+          const whatsNewModalBody = document.getElementById('whatsNewModalBody');
+          if (whatsNewModalBody && updatesData.whatsNew && updatesData.whatsNew.length > 0) {
+            whatsNewModalBody.innerHTML = updatesData.whatsNew.map(item => `<h5>${item.title}</h5><p>${item.description}</p>`).join('');
           }
 
-          // 顯示更新提示 Modal
-          const updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
-          updateModal.show();
-
-          // 儲存新版本號到 localStorage
-          localStorage.setItem('appVersion', manifest.version);
+          // 顯示更新提示 Modal (新版本可用)
+          let newVersionAvailableModal = bootstrap.Modal.getInstance(document.getElementById('newVersionAvailableModal'));
+          if (!newVersionAvailableModal) {
+            newVersionAvailableModal = new bootstrap.Modal(document.getElementById('newVersionAvailableModal'));
+          }
+          newVersionAvailableModal.show();
 
         } else if (!silent) {
           showToast('您目前使用的是最新版本！');
@@ -2519,7 +2027,7 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
-          const registration = await navigator.serviceWorker.register('/Store/service-worker.js');
+          const registration = await navigator.serviceWorker.register('./service-worker.js');
           
           // 啟動自動檢查更新
           startAutoUpdateCheck();
@@ -2621,14 +2129,52 @@
       }
     });
 
+    // 定義當前應用程式版本
+    const CURRENT_APP_VERSION = "1.2"; // 您可以根據實際更新情況修改此版本號
+
     // 在頁面載入時應用深色模式設定並更新商品類型下拉選單
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
       const enableDarkMode = localStorage.getItem('enableDarkMode') === 'true';
       if (enableDarkMode) {
         document.body.classList.add('dark-mode');
       }
       updateLastCheckTimeDisplay(); // 保證上次檢查時間顯示正確
       updateProductTypeSelects(); // 頁面載入時更新商品類型下拉選單
+
+      // 檢查是否顯示「更新內容」模態框
+      const lastSeenVersion = localStorage.getItem('lastSeenVersion');
+      try {
+        const response = await fetch('./updates.json');
+        if (!response.ok) {
+          console.warn('Failed to fetch updates.json:', response.statusText);
+          return;
+        }
+        const updates = await response.json();
+
+        if (updates.version && updates.version !== lastSeenVersion) {
+          const whatsNewModalBody = document.getElementById('whatsNewModalBody');
+          if (whatsNewModalBody) {
+            let content = '';
+            if (updates.highlights && updates.highlights.length > 0) {
+              content += '<h6>本次更新亮點：</h6><ul>';
+              updates.highlights.forEach(item => {
+                content += `<li>${item}</li>`;
+              });
+              content += '</ul>';
+            }
+            if (updates.note) {
+              content += `<hr><p class="text-muted small">${updates.note}</p>`;
+            }
+            whatsNewModalBody.innerHTML = content;
+          }
+
+          const whatsNewModal = new bootstrap.Modal(document.getElementById('whatsNewModal'));
+          whatsNewModal.show();
+          localStorage.setItem('lastSeenVersion', updates.version);
+        }
+      } catch (error) {
+        console.error('Error loading updates:', error);
+      }
     });
 
     // 隱藏設定 Modal 的函數
@@ -2645,7 +2191,7 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
-          const registration = await navigator.serviceWorker.register('/Store/service-worker.js');
+          const registration = await navigator.serviceWorker.register('./service-worker.js');
           console.log('Service Worker 註冊成功：', registration.scope);
 
           // 啟動自動檢查更新
@@ -2748,6 +2294,65 @@
         if (savedVersion && currentVersionElement) {
             currentVersionElement.textContent = savedVersion;
         }
+    });
+
+    // 從新版本可用模態框顯示更新內容模態框
+    function showWhatsNewModalFromNewVersionAvailableModal() {
+      const newVersionAvailableModal = bootstrap.Modal.getInstance(document.getElementById('newVersionAvailableModal'));
+      if (newVersionAvailableModal) {
+        newVersionAvailableModal.hide(); // 隱藏「新版本可用」模態框
+      }
+
+      let whatsNewModal = bootstrap.Modal.getInstance(document.getElementById('whatsNewModal'));
+      if (!whatsNewModal) {
+        whatsNewModal = new bootstrap.Modal(document.getElementById('whatsNewModal'));
+      }
+      whatsNewModal.show(); // 顯示「最新版本更新」模態框
+    }
+
+    // 標記更新為已看過 (用戶點擊「知道了」後調用)
+    function markUpdateAsSeen() {
+      if (newVersion) {
+        localStorage.setItem('appVersion', newVersion); // 儲存新版本號
+      }
+      const whatsNewModal = bootstrap.Modal.getInstance(document.getElementById('whatsNewModal'));
+      if (whatsNewModal) {
+        whatsNewModal.hide(); // 隱藏「最新版本更新」模態框
+      }
+    }
+
+    // 添加一個全局的 modal 實例管理對象
+    const modalInstances = {};
+
+    // 安全的 modal 顯示函數
+    function showModal(modalId) {
+      const modalElement = document.getElementById(modalId);
+      if (modalElement && modalElement._modal) {
+        modalElement._modal.show();
+      }
+    }
+
+    // 安全的 modal 隱藏函數
+    function hideModal(modalId) {
+      const modalElement = document.getElementById(modalId);
+      if (modalElement && modalElement._modal) {
+        modalElement._modal.hide();
+      }
+    }
+
+    // 在頁面加載完成後初始化所有 modal
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始化所有 modal
+      const modalElements = document.querySelectorAll('.modal');
+      modalElements.forEach(modalElement => {
+        // 確保每個 modal 只被初始化一次
+        if (!modalElement._modal) {
+          modalElement._modal = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: false
+          });
+        }
+      });
     });
   </script>
 </body>
