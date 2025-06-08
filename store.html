@@ -56,7 +56,7 @@
     content: '';
     position: absolute;
     border-radius: 50%;
-    animation: updateSpinner 1.5s linear infinite;
+    animation: updateSpinner 5s linear infinite;
   }
 
   .update-loading-spinner::before {
@@ -499,7 +499,7 @@
 
     .dark-mode #searchInput {
         background-color: #2c3e50; /* 深色背景 */
-        color: #ecf0f1; /* 淺灰文字 */
+        color: #ecdef1; /* 淺灰文字 */
         box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* 調整陰影 */
         border-color: #34495e; /* 調整邊框顏色 */
     }
@@ -613,11 +613,11 @@
 
   <!-- 按鈕列 -->
   <div class="mb-3 d-flex flex-wrap gap-2 btn-group">
-    <button class="btn btn-info" onclick="backup()">💾 手動備份</button>
+    <button class="btn btn-info" onclick="backup()">手動備份</button>
     <input type="file" id="importInput" accept=".json" style="display:none" onchange="importBackup(event)" />
-    <button class="btn btn-warning" onclick="document.getElementById('importInput').click()">📥 匯入備份</button>
+    <button class="btn btn-warning" onclick="document.getElementById('importInput').click()">匯入備份</button>
     <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#settingsModal">
-      ⚙️ 設定
+      設定
     </button>
   </div>
 
