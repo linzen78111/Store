@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>顧客查詢系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/store.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">顧客查詢系統</h2>
+                        <form id="searchForm" class="mb-4">
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">請輸入您的姓名</label>
+                                <input type="text" class="form-control" id="customerName" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">查詢</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="customerInfo" class="card mt-4 d-none">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4" id="customerNameDisplay"></h3>
+                        <div class="text-center mb-4">
+                            <h4>目前杯數</h4>
+                            <h2 id="cupCount" class="display-4"></h2>
+                        </div>
+                        <div class="mb-4">
+                            <h5>消費記錄</h5>
+                            <div id="cupLog" class="list-group"></div>
+                        </div>
+                        <div class="mb-4">
+                            <h5>備註</h5>
+                            <p id="customerNote" class="text-muted"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="alert alert-danger mt-4 d-none"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyDmK5gQ5VeqDYJw6xTh0fdGMW6wSVYrR8Y",
+            authDomain: "number-79587.firebaseapp.com",
+            projectId: "number-79587",
+            storageBucket: "number-79587.firebasestorage.app",
+            messagingSenderId: "779614466586",
+            appId: "1:779614466586:web:9bcc9187dd3cbacb0917a3",
+            measurementId: "G-VT1W90X55Z"
+        };
+
+        // 初始化 Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 註冊 Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker 註冊成功');
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker 註冊失敗：', error);
+                    });
+            });
+        }
+
+        // 查詢顧客資料
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customerName = document.getElementById('customerName').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            const customerInfo = document.getElementById('customerInfo');
+
+            try {
+                // 查詢所有店家
+                const storesRef = collection(db, "stores");
+                const storesSnapshot = await getDocs(storesRef);
+                
+                let found = false;
+                for (const storeDoc of storesSnapshot.docs) {
+                    const customerRef = doc(db, "stores", storeDoc.id, "customers", customerName);
+                    const customerDoc = await getDoc(customerRef);
+                    
+                    if (customerDoc.exists()) {
+                        const customerData = customerDoc.data();
+                        
+                        // 更新UI
+                        document.getElementById('customerNameDisplay').textContent = customerName;
+                        document.getElementById('cupCount').textContent = customerData.count;
+                        document.getElementById('customerNote').textContent = customerData.note || '無備註';
+                        
+                        // 更新消費記錄
+                        const cupLog = document.getElementById('cupLog');
+                        cupLog.innerHTML = '';
+                        customerData.log.forEach(entry => {
+                            const logItem = document.createElement('div');
+                            logItem.className = 'list-group-item';
+                            logItem.textContent = entry;
+                            cupLog.appendChild(logItem);
+                        });
+
+                        customerInfo.classList.remove('d-none');
+                        errorMessage.classList.add('d-none');
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    errorMessage.textContent = '找不到顧客資料';
+                    errorMessage.classList.remove('d-none');
+                    customerInfo.classList.add('d-none');
+                }
+            } catch (error) {
+                console.error('查詢失敗：', error);
+                errorMessage.textContent = '查詢失敗：' + error.message;
+                errorMessage.classList.remove('d-none');
+                customerInfo.classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html> 
